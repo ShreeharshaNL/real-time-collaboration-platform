@@ -11,10 +11,18 @@
             theme: {
                 extend: {
                     colors: {
-                        zinc: {
-                            850: '#1c1c1f',
-                            900: '#121215',
-                            950: '#09090b'
+                        cosmic: {
+                            950: '#0c0a1d',
+                            900: '#14122b',
+                            850: '#1d193d',
+                            800: '#282352'
+                        },
+                        violet: {
+                            neon: '#8b5cf6',
+                            bright: '#a855f7'
+                        },
+                        fuchsia: {
+                            neon: '#f43f5e'
                         }
                     }
                 }
@@ -23,201 +31,293 @@
     </script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans antialiased overflow-hidden selection:bg-zinc-700 selection:text-white">
-    <!-- Top Bar -->
-    <header class="h-12 border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md px-4 flex items-center justify-between shrink-0 z-40">
-        <div class="flex items-center space-x-3">
-            <div class="h-6 w-6 rounded bg-zinc-100 text-zinc-950 flex items-center justify-center font-bold text-xs">
-                SY
-            </div>
-            <div class="flex items-baseline space-x-2">
-                <span class="font-semibold text-xs tracking-tight text-white">SYNCHRONIZE</span>
-                <span class="text-[11px] text-zinc-500 font-mono">/ linear-collab.v2</span>
-            </div>
-            <div class="h-3 w-px bg-zinc-800 hidden sm:block"></div>
-            <span class="text-[11px] text-zinc-400 font-mono hidden sm:inline-flex items-center">
-                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 mr-2"></span>
-                Redis Pub/Sub Sync &bull; Sub-10ms
-            </span>
-        </div>
-
-        <div class="flex items-center space-x-3">
-            <div class="flex items-center space-x-2 text-xs font-mono">
-                <span class="text-zinc-500 hidden sm:inline">Active Engineer:</span>
-                <select id="userSelector" class="bg-zinc-900 border border-zinc-800 text-zinc-200 rounded px-2.5 py-1 text-xs focus:ring-0 focus:border-zinc-600">
-                    <option value="usr-shree" data-name="Shreeharsha N L" data-role="Principal Systems Architect">Shreeharsha N L (Principal Architect)</option>
-                    <option value="usr-marcus" data-name="Marcus Vance" data-role="Lead Distributed Systems SRE">Marcus Vance (Lead SRE)</option>
-                    <option value="usr-elena" data-name="Dr. Elena Rostova" data-role="Staff Research Scientist">Dr. Elena Rostova (Staff Researcher)</option>
-                </select>
+<body class="text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-violet-500/30 selection:text-violet-200">
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-violet-500/20 bg-cosmic-950/80 backdrop-blur-xl sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3.5">
+                <div class="relative flex items-center justify-center h-9 w-9 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white font-black text-sm shadow-[0_0_15px_rgba(139,92,246,0.5)]">
+                    SY
+                </div>
+                <div class="flex flex-col">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-sm tracking-tight text-white font-mono">SYNCHRONIZE</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-300 border border-violet-500/30 font-mono">REDIS 7.2 SYNC</span>
+                    </div>
+                    <span class="text-[11px] text-violet-300/60 font-mono hidden sm:inline">Linear-Caliber Engineering Workspace</span>
+                </div>
+                <div class="h-4 w-px bg-violet-500/20 hidden md:block"></div>
+                <div class="hidden md:flex items-center space-x-2 text-xs font-mono text-slate-300">
+                    <span class="relative flex h-2 w-2">
+                        <span class="absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75 animate-ping"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-violet-400"></span>
+                    </span>
+                    <span class="text-slate-400">Pub/Sub Mesh &bull;</span>
+                    <span class="text-violet-300 font-semibold" id="activeSocketsDisplay">48 Active Sockets</span>
+                </div>
             </div>
 
-            <a href="https://github.com/ShreeharshaNL/real-time-collaboration-platform" target="_blank" class="text-xs text-zinc-400 hover:text-white px-2 py-1 rounded border border-zinc-800 hover:border-zinc-700 transition flex items-center space-x-1 font-mono">
-                <span>GitHub</span>
-            </a>
+            <!-- Active User Switcher & Create Task Button -->
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-2 bg-cosmic-900 border border-violet-500/25 px-3 py-1.5 rounded-lg text-xs font-mono text-slate-300">
+                    <span class="text-slate-400 hidden sm:inline">Active:</span>
+                    <select id="userSelector" class="bg-transparent text-violet-200 font-semibold focus:outline-none cursor-pointer">
+                        <option value="usr-shree" data-name="Shreeharsha N L" data-role="Principal Systems Architect">Shreeharsha N L (Principal)</option>
+                        <option value="usr-marcus" data-name="Marcus Vance" data-role="Lead Distributed Systems SRE">Marcus Vance (Lead SRE)</option>
+                        <option value="usr-elena" data-name="Dr. Elena Rostova" data-role="Staff Research Scientist">Dr. Elena Rostova (Staff AI)</option>
+                    </select>
+                </div>
+
+                <button id="openNewTaskModalBtn" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold text-xs tracking-wide shadow-[0_0_15px_rgba(139,92,246,0.4)] active:scale-95 transition flex items-center space-x-1.5 font-mono">
+                    <span>+</span>
+                    <span>New Issue</span>
+                </button>
+
+                <a href="https://github.com/ShreeharshaNL/real-time-collaboration-platform" target="_blank" class="text-xs text-violet-300 hover:text-white px-2.5 py-1.5 rounded-lg bg-cosmic-900 border border-violet-500/30 hover:border-violet-400 transition flex items-center space-x-1 font-mono">
+                    <span>GitHub</span>
+                </a>
+            </div>
         </div>
     </header>
 
     <!-- Main Workspace Layout -->
     <div class="flex-1 flex overflow-hidden relative">
-        <div class="absolute inset-0 bg-cover bg-center opacity-5 pointer-events-none" style="background-image: url('hero-bg.jpg');"></div>
-
-        <!-- Left Minimal Sidebar -->
-        <aside class="w-56 border-r border-zinc-800/80 bg-zinc-950/70 p-3.5 flex flex-col space-y-6 shrink-0 hidden md:flex font-mono text-xs z-10">
+        <!-- Sidebar Navigation (Channels & Metrics) -->
+        <aside class="w-64 border-r border-violet-500/20 bg-cosmic-950/70 p-4 flex flex-col space-y-6 shrink-0 hidden md:flex font-mono text-xs z-10 backdrop-blur-md">
             <div>
-                <div class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold mb-2">Workspaces</div>
+                <div class="text-[10px] uppercase tracking-wider text-violet-400/80 font-bold mb-2 flex items-center justify-between">
+                    <span>Workspaces</span>
+                    <span class="text-slate-500">D1 REPL</span>
+                </div>
                 <div id="workspaceList" class="space-y-1">
-                    <!-- Workspaces -->
+                    <!-- Populated dynamically -->
                 </div>
             </div>
 
             <div>
-                <div class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold mb-2">Engineering Channels</div>
-                <div class="space-y-0.5">
-                    <button class="w-full text-left px-2 py-1.5 rounded bg-zinc-900 text-zinc-200 font-medium flex items-center space-x-2">
-                        <span class="text-zinc-500">#</span>
+                <div class="text-[10px] uppercase tracking-wider text-violet-400/80 font-bold mb-2">Live Team Channels</div>
+                <div class="space-y-1">
+                    <button class="w-full text-left px-2.5 py-1.5 rounded-lg bg-violet-600/20 text-violet-200 border border-violet-500/30 font-medium flex items-center space-x-2">
+                        <span class="text-violet-400 font-bold">#</span>
                         <span>architecture</span>
                     </button>
-                    <button class="w-full text-left px-2 py-1.5 rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50 transition flex items-center space-x-2">
-                        <span class="text-zinc-600">#</span>
+                    <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-cosmic-900/60 transition flex items-center space-x-2">
+                        <span class="text-slate-600 font-bold">#</span>
                         <span>release-42</span>
                     </button>
-                    <button class="w-full text-left px-2 py-1.5 rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50 transition flex items-center space-x-2">
-                        <span class="text-zinc-600">#</span>
-                        <span>incident-postmortems</span>
+                    <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-cosmic-900/60 transition flex items-center space-x-2">
+                        <span class="text-slate-600 font-bold">#</span>
+                        <span>sre-incident-room</span>
                     </button>
                 </div>
             </div>
 
-            <div class="mt-auto pt-4 border-t border-zinc-800/80 text-[11px] text-zinc-500 space-y-1">
-                <div class="text-zinc-400 font-semibold">Edge Specifications</div>
-                <div>WebSockets via Redis 7.2</div>
-                <div>D1 SQLite Replication</div>
-                <div>P99 Broadcast: 2.4ms</div>
+            <!-- Sprint Velocity Bento Tile -->
+            <div class="bg-cosmic-900/90 border border-violet-500/25 p-3.5 rounded-xl space-y-2.5 shadow-[0_4px_15px_rgba(139,92,246,0.1)]">
+                <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold flex items-center justify-between">
+                    <span>Sprint 42 Velocity</span>
+                    <span id="velocityPercentage" class="text-violet-300 font-bold">75%</span>
+                </div>
+                <div class="w-full bg-cosmic-950 rounded-full h-2 overflow-hidden border border-violet-500/20">
+                    <div id="velocityProgressBar" class="bg-gradient-to-r from-violet-500 to-fuchsia-500 h-2 rounded-full transition-all duration-500" style="width: 75%"></div>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-slate-400">
+                    <span>Points Completed:</span>
+                    <span id="velocityPointsDisplay" class="text-white font-bold">18 / 24 SP</span>
+                </div>
+            </div>
+
+            <div class="mt-auto pt-4 border-t border-violet-500/20 text-[11px] text-slate-400 space-y-1">
+                <div class="text-violet-300 font-semibold">Engine Specifications</div>
+                <div>Node.js &bull; Express &bull; Redis 7.2</div>
+                <div>Sub-10ms Cross-Node Broadcast</div>
+                <div>Cloudflare D1 SQL Persistent</div>
             </div>
         </aside>
 
-        <!-- Center Kanban Board -->
-        <main class="flex-1 flex flex-col min-w-0 bg-zinc-950/40 overflow-hidden z-10">
-            <!-- Board Header -->
-            <div class="h-11 border-b border-zinc-800/80 px-4 flex items-center justify-between shrink-0 bg-zinc-900/40">
-                <div class="flex items-center space-x-2 font-mono text-xs">
-                    <span class="font-semibold text-white" id="currentBoardTitle">Sprint 42: Edge Convergence & Zero-Trust RPC</span>
-                    <span class="text-zinc-500">&bull;</span>
-                    <span class="text-emerald-400">Live Sync Active</span>
+        <!-- Main Kanban & Chat Studio -->
+        <main class="flex-1 flex flex-col min-w-0 bg-cosmic-950/40 overflow-hidden z-10">
+            <!-- Board Header & Filter Pills -->
+            <div class="h-14 border-b border-violet-500/20 px-6 flex items-center justify-between shrink-0 bg-cosmic-900/40 backdrop-blur-md">
+                <div class="flex items-center space-x-3 font-mono text-xs">
+                    <span class="font-bold text-white tracking-wide">SPRINT-42 KANBAN</span>
+                    <span class="text-slate-600">|</span>
+                    <div class="flex items-center space-x-1.5" id="taskFilterButtons">
+                        <button onclick="filterTasks('ALL')" class="task-filter-btn active px-2.5 py-1 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30 font-semibold">All Tasks</button>
+                        <button onclick="filterTasks('MY')" class="task-filter-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition">My Issues</button>
+                        <button onclick="filterTasks('HIGH')" class="task-filter-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition">Urgent & High</button>
+                    </div>
                 </div>
-                <button id="openNewTaskModalBtn" class="bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-semibold px-3 py-1 rounded shadow transition font-mono flex items-center space-x-1">
-                    <span>+ New Ticket</span>
-                    <kbd class="text-[9px] bg-zinc-300 text-zinc-900 px-1 rounded">N</kbd>
-                </button>
+
+                <div class="flex items-center space-x-2 font-mono text-xs">
+                    <button onclick="fetchTasks()" class="px-2.5 py-1 rounded text-violet-300 hover:text-white bg-cosmic-900 border border-violet-500/25 transition">
+                        &circlearrowright; Sync Board
+                    </button>
+                </div>
             </div>
 
-            <!-- Kanban Columns Container -->
-            <div class="flex-1 overflow-x-auto p-4 flex space-x-4">
-                <!-- Column: TODO -->
-                <div class="w-72 bg-zinc-900/60 rounded-lg border border-zinc-800/80 flex flex-col shrink-0">
-                    <div class="p-3 border-b border-zinc-800/60 flex items-center justify-between font-mono text-xs">
-                        <span class="font-medium text-zinc-400">Backlog / Todo</span>
-                        <span id="count-TODO" class="text-zinc-500 bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800">0</span>
+            <!-- Kanban Column Grid -->
+            <div class="flex-1 p-6 overflow-x-auto overflow-y-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 min-w-[850px] h-full items-start">
+                    
+                    <!-- Column 1: TODO -->
+                    <div class="bg-cosmic-900/60 rounded-xl border border-violet-500/20 column-header-todo flex flex-col max-h-full">
+                        <div class="p-3.5 border-b border-violet-500/15 flex items-center justify-between font-mono text-xs">
+                            <div class="flex items-center space-x-2">
+                                <span class="h-2 w-2 rounded-full bg-slate-400"></span>
+                                <span class="font-bold text-slate-300 uppercase tracking-wider">Backlog</span>
+                            </div>
+                            <span id="count-TODO" class="px-2 py-0.5 rounded-full bg-cosmic-950 text-slate-400 text-[10px] font-bold border border-violet-500/20">0</span>
+                        </div>
+                        <div id="col-TODO" class="p-3 space-y-3 overflow-y-auto flex-1 min-h-[200px]">
+                            <!-- Tasks populated dynamically -->
+                        </div>
                     </div>
-                    <div id="col-TODO" class="p-2.5 space-y-2.5 flex-1 overflow-y-auto"></div>
-                </div>
 
-                <!-- Column: IN_PROGRESS -->
-                <div class="w-72 bg-zinc-900/60 rounded-lg border border-zinc-800/80 flex flex-col shrink-0">
-                    <div class="p-3 border-b border-zinc-800/60 flex items-center justify-between font-mono text-xs">
-                        <span class="font-medium text-amber-400 flex items-center"><span class="h-1.5 w-1.5 rounded-full bg-amber-400 mr-2 animate-pulse"></span>In Progress</span>
-                        <span id="count-IN_PROGRESS" class="text-zinc-500 bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800">0</span>
+                    <!-- Column 2: IN_PROGRESS -->
+                    <div class="bg-cosmic-900/60 rounded-xl border border-violet-500/20 column-header-progress flex flex-col max-h-full">
+                        <div class="p-3.5 border-b border-violet-500/15 flex items-center justify-between font-mono text-xs">
+                            <div class="flex items-center space-x-2">
+                                <span class="h-2 w-2 rounded-full bg-violet-400 shadow-[0_0_6px_#8b5cf6]"></span>
+                                <span class="font-bold text-violet-300 uppercase tracking-wider">In Progress</span>
+                            </div>
+                            <span id="count-IN_PROGRESS" class="px-2 py-0.5 rounded-full bg-cosmic-950 text-violet-300 text-[10px] font-bold border border-violet-500/30">0</span>
+                        </div>
+                        <div id="col-IN_PROGRESS" class="p-3 space-y-3 overflow-y-auto flex-1 min-h-[200px]">
+                            <!-- Tasks populated dynamically -->
+                        </div>
                     </div>
-                    <div id="col-IN_PROGRESS" class="p-2.5 space-y-2.5 flex-1 overflow-y-auto"></div>
-                </div>
 
-                <!-- Column: REVIEW -->
-                <div class="w-72 bg-zinc-900/60 rounded-lg border border-zinc-800/80 flex flex-col shrink-0">
-                    <div class="p-3 border-b border-zinc-800/60 flex items-center justify-between font-mono text-xs">
-                        <span class="font-medium text-cyan-400">Code Review</span>
-                        <span id="count-REVIEW" class="text-zinc-500 bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800">0</span>
+                    <!-- Column 3: REVIEW -->
+                    <div class="bg-cosmic-900/60 rounded-xl border border-violet-500/20 column-header-review flex flex-col max-h-full">
+                        <div class="p-3.5 border-b border-violet-500/15 flex items-center justify-between font-mono text-xs">
+                            <div class="flex items-center space-x-2">
+                                <span class="h-2 w-2 rounded-full bg-amber-400 shadow-[0_0_6px_#f59e0b]"></span>
+                                <span class="font-bold text-amber-300 uppercase tracking-wider">Code Review</span>
+                            </div>
+                            <span id="count-REVIEW" class="px-2 py-0.5 rounded-full bg-cosmic-950 text-amber-300 text-[10px] font-bold border border-violet-500/30">0</span>
+                        </div>
+                        <div id="col-REVIEW" class="p-3 space-y-3 overflow-y-auto flex-1 min-h-[200px]">
+                            <!-- Tasks populated dynamically -->
+                        </div>
                     </div>
-                    <div id="col-REVIEW" class="p-2.5 space-y-2.5 flex-1 overflow-y-auto"></div>
-                </div>
 
-                <!-- Column: DONE -->
-                <div class="w-72 bg-zinc-900/60 rounded-lg border border-zinc-800/80 flex flex-col shrink-0">
-                    <div class="p-3 border-b border-zinc-800/60 flex items-center justify-between font-mono text-xs">
-                        <span class="font-medium text-emerald-400">Completed</span>
-                        <span id="count-DONE" class="text-zinc-500 bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800">0</span>
+                    <!-- Column 4: DONE -->
+                    <div class="bg-cosmic-900/60 rounded-xl border border-violet-500/20 column-header-done flex flex-col max-h-full">
+                        <div class="p-3.5 border-b border-violet-500/15 flex items-center justify-between font-mono text-xs">
+                            <div class="flex items-center space-x-2">
+                                <span class="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]"></span>
+                                <span class="font-bold text-emerald-300 uppercase tracking-wider">Completed</span>
+                            </div>
+                            <span id="count-DONE" class="px-2 py-0.5 rounded-full bg-cosmic-950 text-emerald-300 text-[10px] font-bold border border-violet-500/30">0</span>
+                        </div>
+                        <div id="col-DONE" class="p-3 space-y-3 overflow-y-auto flex-1 min-h-[200px]">
+                            <!-- Tasks populated dynamically -->
+                        </div>
                     </div>
-                    <div id="col-DONE" class="p-2.5 space-y-2.5 flex-1 overflow-y-auto"></div>
+
                 </div>
             </div>
         </main>
 
-        <!-- Right Minimalist Chat & Presence Panel -->
-        <aside class="w-72 border-l border-zinc-800/80 bg-zinc-950/70 flex flex-col shrink-0 hidden lg:flex font-mono text-xs z-10">
-            <!-- Presence Status -->
-            <div class="p-3 border-b border-zinc-800/80">
-                <div class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold mb-2">Live Node Presence</div>
-                <div id="presenceContainer" class="space-y-1.5"></div>
+        <!-- Right Live Chat Panel -->
+        <aside class="w-80 border-l border-violet-500/20 bg-cosmic-950/80 flex flex-col shrink-0 hidden lg:flex font-mono text-xs z-10 backdrop-blur-md">
+            <div class="h-14 border-b border-violet-500/20 px-4 flex items-center justify-between shrink-0">
+                <div class="flex items-center space-x-2">
+                    <span class="h-2 w-2 rounded-full bg-violet-400 shadow-[0_0_6px_#8b5cf6]"></span>
+                    <span class="font-bold text-white tracking-wide">#architecture</span>
+                </div>
+                <button onclick="simulatePeerMessage()" class="text-[10px] text-violet-300 bg-violet-600/20 hover:bg-violet-600/30 px-2 py-0.5 rounded border border-violet-500/30 transition">
+                    + Peer Reply
+                </button>
             </div>
 
-            <!-- Chat Channel Header -->
-            <div class="p-3 border-b border-zinc-800/80 flex items-center justify-between text-zinc-400">
-                <span>#architecture</span>
-                <span class="text-[10px] text-zinc-500">Redis Stream</span>
+            <!-- Messages Stream -->
+            <div id="chatMessages" class="flex-1 p-4 space-y-3 overflow-y-auto">
+                <!-- Messages populated dynamically -->
             </div>
 
-            <!-- Messages List -->
-            <div id="chatMessages" class="flex-1 p-3 space-y-3 overflow-y-auto text-xs font-sans"></div>
-
-            <!-- Chat Input -->
-            <div class="p-3 border-t border-zinc-800/80 bg-zinc-950">
-                <form id="chatForm" class="flex items-center space-x-2">
-                    <input type="text" id="chatInput" placeholder="Send update..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-600 font-sans">
-                    <button type="submit" class="bg-zinc-100 hover:bg-white text-zinc-950 px-3 py-1.5 rounded text-xs font-medium font-mono">
-                        Send
-                    </button>
-                </form>
-            </div>
+            <!-- Message Input Form -->
+            <form id="chatForm" class="p-3 border-t border-violet-500/20 bg-cosmic-900/60 flex items-center space-x-2">
+                <input type="text" id="chatInput" placeholder="Broadcast socket message..." class="flex-1 bg-cosmic-950 border border-violet-500/30 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-violet-400 font-sans">
+                <button type="submit" class="px-3 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white rounded-lg font-bold text-xs transition active:scale-95 shadow-[0_0_10px_rgba(139,92,246,0.4)]">
+                    Send
+                </button>
+            </form>
         </aside>
     </div>
 
-    <!-- Modal: New Ticket -->
-    <div id="taskModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden font-mono">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-xl w-full max-w-md p-6 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
-                <h3 class="font-semibold text-xs text-white uppercase tracking-wider">Create Engineering Ticket</h3>
-                <button id="closeModalBtn" class="text-zinc-500 hover:text-white text-xs">&times;</button>
+    <!-- 21st.dev Floating Presence Dock (Bottom) -->
+    <div class="fixed bottom-4 left-1/2 -translate-x-1/2 floating-dock px-4 py-2 rounded-full flex items-center space-x-4 z-50">
+        <span class="text-[11px] font-mono text-violet-300 font-bold flex items-center space-x-1.5">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]"></span>
+            <span>PRESENCE:</span>
+        </span>
+        <div id="presenceAvatars" class="flex items-center -space-x-2">
+            <!-- Dicebear avatars populated dynamically -->
+        </div>
+        <span class="text-[10px] font-mono text-slate-400 border-l border-violet-500/30 pl-3 hidden sm:inline" id="presenceStatusText">All systems nominal</span>
+    </div>
+
+    <!-- 21st.dev Modal: Create New Issue -->
+    <div id="newTaskModal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <div class="bg-cosmic-900 border border-violet-500/30 rounded-2xl p-6 max-w-lg w-full space-y-5 shadow-[0_20px_60px_-15px_rgba(139,92,246,0.4)] animate-pop">
+            <div class="flex items-center justify-between border-b border-violet-500/20 pb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="h-2 w-2 rounded-full bg-violet-400"></span>
+                    <h3 class="font-bold text-base text-white font-mono">Create Engineering Task</h3>
+                </div>
+                <button id="closeModalBtn" class="text-slate-400 hover:text-white font-mono text-lg">&times;</button>
             </div>
-            <form id="createTaskForm" class="space-y-3 text-xs">
-                <div>
-                    <label class="block text-zinc-400 mb-1">Ticket Title</label>
-                    <input type="text" id="taskTitleInput" required placeholder="e.g. Implement Raft leader election timeout" class="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-zinc-100 focus:outline-none focus:border-zinc-600 font-sans">
+
+            <form id="createTaskForm" class="space-y-4 text-xs font-mono">
+                <div class="space-y-1">
+                    <label class="text-slate-300 font-semibold">Issue Title:</label>
+                    <input type="text" id="taskTitleInput" required placeholder="e.g. Implement Kafka tombstone event handler" class="w-full bg-cosmic-950 border border-violet-500/30 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-violet-400 font-sans">
                 </div>
-                <div>
-                    <label class="block text-zinc-400 mb-1">Technical Context</label>
-                    <textarea id="taskDescInput" rows="3" placeholder="Context, constraints, and acceptance criteria..." class="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-zinc-100 focus:outline-none focus:border-zinc-600 font-sans"></textarea>
+
+                <div class="space-y-1">
+                    <label class="text-slate-300 font-semibold">Technical Description:</label>
+                    <textarea id="taskDescInput" rows="3" placeholder="Context, invariants, and acceptance criteria..." class="w-full bg-cosmic-950 border border-violet-500/30 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-violet-400 font-sans"></textarea>
                 </div>
+
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-zinc-400 mb-1">Priority</label>
-                        <select id="taskPriorityInput" class="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-zinc-100">
-                            <option value="LOW">Low</option>
-                            <option value="MEDIUM" selected>Medium</option>
-                            <option value="HIGH">High</option>
-                            <option value="URGENT">Urgent</option>
+                    <div class="space-y-1">
+                        <label class="text-slate-300 font-semibold">Priority:</label>
+                        <select id="taskPriorityInput" class="w-full bg-cosmic-950 border border-violet-500/30 rounded-lg p-2 text-slate-200 focus:outline-none">
+                            <option value="URGENT">URGENT</option>
+                            <option value="HIGH">HIGH</option>
+                            <option value="MEDIUM" selected>MEDIUM</option>
+                            <option value="LOW">LOW</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-zinc-400 mb-1">Assignee</label>
-                        <select id="taskAssigneeInput" class="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-zinc-100">
-                            <option value="Shreeharsha N L">Shreeharsha N L</option>
-                            <option value="Marcus Vance">Marcus Vance</option>
-                            <option value="Dr. Elena Rostova">Dr. Elena Rostova</option>
+
+                    <div class="space-y-1">
+                        <label class="text-slate-300 font-semibold">Story Points:</label>
+                        <select id="taskPointsInput" class="w-full bg-cosmic-950 border border-violet-500/30 rounded-lg p-2 text-slate-200 focus:outline-none">
+                            <option value="1">1 pt (Trivial)</option>
+                            <option value="2">2 pts (Minor)</option>
+                            <option value="3" selected>3 pts (Standard)</option>
+                            <option value="5">5 pts (Complex)</option>
+                            <option value="8">8 pts (Epic)</option>
                         </select>
                     </div>
                 </div>
-                <div class="pt-2 flex justify-end space-x-2">
-                    <button type="button" id="cancelModalBtn" class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded">Cancel</button>
-                    <button type="submit" class="px-4 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold rounded shadow">Create Ticket</button>
+
+                <div class="space-y-1">
+                    <label class="text-slate-300 font-semibold">Assignee:</label>
+                    <select id="taskAssigneeInput" class="w-full bg-cosmic-950 border border-violet-500/30 rounded-lg p-2 text-slate-200 focus:outline-none">
+                        <option value="Shreeharsha N L">Shreeharsha N L (Principal Architect)</option>
+                        <option value="Marcus Vance">Marcus Vance (Lead SRE)</option>
+                        <option value="Dr. Elena Rostova">Dr. Elena Rostova (Staff Researcher)</option>
+                    </select>
+                </div>
+
+                <div class="pt-3 border-t border-violet-500/20 flex items-center justify-end space-x-3">
+                    <button type="button" id="cancelModalBtn" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold transition shadow-[0_0_15px_rgba(139,92,246,0.5)]">
+                        Create Ticket &rarr;
+                    </button>
                 </div>
             </form>
         </div>

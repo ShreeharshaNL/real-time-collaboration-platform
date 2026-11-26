@@ -1,9 +1,11 @@
-// Frontend logic for Synchronize Linear Collab
+// Frontend interactive logic for Synchronize Linear Collaboration Platform
 let currentWorkspaceId = 'ws-core';
 let currentBoardId = 'bd-sprint-42';
 let currentUser = { id: 'usr-shree', name: 'Shreeharsha N L', role: 'Principal Systems Architect' };
 let tasks = [];
+let taskFilter = 'ALL';
 
+// User selector change
 const userSelector = document.getElementById('userSelector');
 userSelector.addEventListener('change', (e) => {
     const selected = e.target.options[e.target.selectedIndex];
@@ -13,8 +15,10 @@ userSelector.addEventListener('change', (e) => {
         role: selected.getAttribute('data-role')
     };
     sendHeartbeat();
+    renderTasks();
 });
 
+// Fetch Workspaces
 async function fetchWorkspaces() {
     try {
         const res = await fetch('/api/workspaces');
@@ -22,7 +26,7 @@ async function fetchWorkspaces() {
         if (data.success && data.workspaces.length) {
             const container = document.getElementById('workspaceList');
             container.innerHTML = data.workspaces.map(ws => `
-                <button onclick="selectWorkspace('${ws.id}')" class="w-full text-left px-2 py-1.5 rounded text-xs transition truncate ${ws.id === currentWorkspaceId ? 'bg-zinc-850 text-white font-medium border border-zinc-700' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900'}">
+                <button onclick="selectWorkspace('${ws.id}')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition truncate ${ws.id === currentWorkspaceId ? 'bg-violet-600/30 text-violet-200 font-bold border border-violet-500/40' : 'text-slate-400 hover:text-slate-200 hover:bg-cosmic-900'}">
                     ${ws.name}
                 </button>
             `).join('');
@@ -39,6 +43,7 @@ window.selectWorkspace = function(id) {
     fetchMessages();
 };
 
+// Fetch Tasks
 async function fetchTasks() {
     try {
         const res = await fetch(`/api/tasks?boardId=${currentBoardId}`);
@@ -46,46 +51,61 @@ async function fetchTasks() {
         if (data.success) {
             tasks = data.tasks;
             renderTasks();
+            updateSprintVelocity();
         }
     } catch (e) {
         console.error("Failed to load tasks:", e);
     }
 }
 
+// Render Tasks with Filters
 function renderTasks() {
     const columns = ['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE'];
     const priorityColors = {
-        'URGENT': 'bg-red-500/10 text-red-400 border-red-500/20',
-        'HIGH': 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-        'MEDIUM': 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-        'LOW': 'bg-zinc-800 text-zinc-400 border-zinc-700'
+        'URGENT': 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30 font-bold',
+        'HIGH': 'bg-orange-500/20 text-orange-300 border-orange-500/30 font-semibold',
+        'MEDIUM': 'bg-violet-500/20 text-violet-300 border-violet-500/30 font-medium',
+        'LOW': 'bg-slate-800 text-slate-400 border-slate-700'
     };
 
+    let filtered = tasks;
+    if (taskFilter === 'MY') {
+        filtered = tasks.filter(t => t.assigned_to.includes(currentUser.name.split(' ')[0]));
+    } else if (taskFilter === 'HIGH') {
+        filtered = tasks.filter(t => t.priority === 'URGENT' || t.priority === 'HIGH');
+    }
+
     columns.forEach(col => {
-        const colTasks = tasks.filter(t => t.status === col);
+        const colTasks = filtered.filter(t => t.status === col);
         document.getElementById(`count-${col}`).innerText = colTasks.length;
         const container = document.getElementById(`col-${col}`);
 
         if (!colTasks.length) {
-            container.innerHTML = `<div class="text-center py-10 text-zinc-600 font-mono text-xs border border-dashed border-zinc-800/80 rounded">Empty</div>`;
+            container.innerHTML = `<div class="text-center py-10 text-slate-500 font-mono text-xs border border-dashed border-violet-500/20 rounded-xl">No issues</div>`;
             return;
         }
 
         container.innerHTML = colTasks.map(t => `
-            <div class="bg-zinc-950/90 p-3 rounded-lg border border-zinc-800/80 shadow-sm hover:border-zinc-700 transition space-y-2">
+            <div class="glass-card p-3.5 space-y-2.5 cursor-grab">
                 <div class="flex items-center justify-between font-mono text-[10px]">
-                    <span class="text-zinc-500 font-semibold">${t.ticket_id}</span>
-                    <span class="px-1.5 py-0.5 rounded border ${priorityColors[t.priority] || priorityColors['MEDIUM']}">
+                    <span class="text-violet-400 font-bold">${t.ticket_id}</span>
+                    <span class="px-2 py-0.5 rounded-full border ${priorityColors[t.priority] || priorityColors['MEDIUM']}">
                         ${t.priority}
                     </span>
                 </div>
-                <div class="font-medium text-xs text-white">${t.title}</div>
-                ${t.description ? `<p class="text-[11px] text-zinc-400 font-sans leading-relaxed">${t.description}</p>` : ''}
-                <div class="flex items-center justify-between pt-2 border-t border-zinc-900 font-mono text-[10px] text-zinc-500">
-                    <span class="text-zinc-300">${t.assigned_to}</span>
+                <div class="font-bold text-xs text-white leading-snug">${t.title}</div>
+                ${t.description ? `<p class="text-[11px] text-slate-300 font-sans leading-relaxed line-clamp-2">${t.description}</p>` : ''}
+                
+                <div class="flex items-center justify-between pt-2 border-t border-violet-500/15 font-mono text-[10px]">
+                    <div class="flex items-center space-x-1.5 text-slate-300">
+                        <img src="https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(t.assigned_to)}" class="h-4 w-4 rounded-full border border-violet-500/40">
+                        <span class="truncate max-w-[90px]">${t.assigned_to.split(' ')[0]}</span>
+                    </div>
+
                     <div class="flex items-center space-x-1">
-                        ${col !== 'TODO' ? `<button onclick="moveTask('${t.id}', '${getPrev(col)}')" class="px-1.5 py-0.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded border border-zinc-800">&larr;</button>` : ''}
-                        ${col !== 'DONE' ? `<button onclick="moveTask('${t.id}', '${getNext(col)}')" class="px-1.5 py-0.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded border border-zinc-800">&rarr;</button>` : ''}
+                        <span class="px-1.5 py-0.5 rounded bg-cosmic-950 text-slate-400 border border-violet-500/20 mr-1 font-bold">${t.story_points || 3}pt</span>
+                        ${col !== 'TODO' ? `<button onclick="moveTask('${t.id}', '${getPrev(col)}')" title="Move backward" class="px-2 py-0.5 bg-cosmic-900 hover:bg-violet-600 text-slate-300 hover:text-white rounded border border-violet-500/30 transition">&larr;</button>` : ''}
+                        ${col !== 'DONE' ? `<button onclick="moveTask('${t.id}', '${getNext(col)}')" title="Move forward" class="px-2 py-0.5 bg-cosmic-900 hover:bg-violet-600 text-slate-300 hover:text-white rounded border border-violet-500/30 transition">&rarr;</button>` : ''}
                     </div>
                 </div>
             </div>
@@ -104,6 +124,20 @@ function getPrev(c) {
     return 'TODO';
 }
 
+window.filterTasks = function(filter) {
+    taskFilter = filter;
+    document.querySelectorAll('.task-filter-btn').forEach(btn => {
+        if ((filter === 'ALL' && btn.innerText.includes('All')) ||
+            (filter === 'MY' && btn.innerText.includes('My')) ||
+            (filter === 'HIGH' && btn.innerText.includes('Urgent'))) {
+            btn.className = "task-filter-btn active px-2.5 py-1 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30 font-semibold";
+        } else {
+            btn.className = "task-filter-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition";
+        }
+    });
+    renderTasks();
+};
+
 window.moveTask = async function(taskId, newStatus) {
     try {
         await fetch(`/api/tasks/${taskId}/status`, {
@@ -117,6 +151,17 @@ window.moveTask = async function(taskId, newStatus) {
     }
 };
 
+function updateSprintVelocity() {
+    const totalPoints = tasks.reduce((sum, t) => sum + (t.story_points || 3), 0);
+    const donePoints = tasks.filter(t => t.status === 'DONE').reduce((sum, t) => sum + (t.story_points || 3), 0);
+    const pct = totalPoints > 0 ? Math.round((donePoints / totalPoints) * 100) : 0;
+
+    document.getElementById('velocityPercentage').innerText = `${pct}%`;
+    document.getElementById('velocityProgressBar').style.width = `${pct}%`;
+    document.getElementById('velocityPointsDisplay').innerText = `${donePoints} / ${totalPoints} SP`;
+}
+
+// Fetch Messages
 async function fetchMessages() {
     try {
         const res = await fetch(`/api/messages?workspaceId=${currentWorkspaceId}&channel=architecture`);
@@ -132,17 +177,18 @@ async function fetchMessages() {
 function renderMessages(messages) {
     const container = document.getElementById('chatMessages');
     if (!messages.length) {
-        container.innerHTML = `<div class="text-center py-8 text-zinc-600 font-mono text-xs">No channel updates yet.</div>`;
+        container.innerHTML = `<div class="text-center py-8 text-slate-500 font-mono text-xs">No channel updates yet.</div>`;
         return;
     }
 
     container.innerHTML = messages.map(m => `
         <div class="space-y-1">
-            <div class="flex items-baseline space-x-2 font-mono text-[11px]">
-                <span class="font-semibold text-zinc-200">${m.user_name}</span>
-                <span class="text-zinc-600 text-[10px]">${new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            <div class="flex items-center space-x-2 font-mono text-[11px]">
+                <img src="${m.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(m.user_name)}`}" class="h-4 w-4 rounded-full border border-violet-500/30">
+                <span class="font-bold text-violet-200">${m.user_name}</span>
+                <span class="text-slate-500 text-[10px]">${new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
-            <div class="text-zinc-300 text-xs bg-zinc-900/70 p-2 rounded border border-zinc-800/80 leading-relaxed font-sans">
+            <div class="text-slate-200 text-xs bg-cosmic-900/80 p-2.5 rounded-xl border border-violet-500/20 leading-relaxed font-sans shadow-sm">
                 ${m.content}
             </div>
         </div>
@@ -172,9 +218,52 @@ document.getElementById('chatForm').addEventListener('submit', async (e) => {
         });
         await fetchMessages();
     } catch (err) {
-        console.error("Chat error:", err);
+        console.error("Failed to post message:", err);
     }
 });
+
+window.simulatePeerMessage = async function() {
+    const peerMessages = [
+        "Running performance validation on the Redis adapter. P99 broadcast lag is at 2.1ms across 48 sockets.",
+        "PR #42 for distributed lock leasing passed automated integration tests in CI.",
+        "Kafka consumer lag is fully zeroed out on the production partition mesh.",
+        "Merged the optimistic lock migration. D1 replica sync is executing nominally."
+    ];
+    const randomMsg = peerMessages[Math.floor(Math.random() * peerMessages.length)];
+
+    await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            workspaceId: currentWorkspaceId,
+            channel: 'architecture',
+            userId: 'usr-marcus',
+            userName: 'Marcus Vance',
+            content: randomMsg
+        })
+    });
+    await fetchMessages();
+};
+
+// Fetch Presence
+async function fetchPresence() {
+    try {
+        const res = await fetch('/api/presence');
+        const data = await res.json();
+        if (data.success) {
+            renderPresence(data.presence);
+        }
+    } catch (e) {
+        console.error("Failed to load presence:", e);
+    }
+}
+
+function renderPresence(presence) {
+    const container = document.getElementById('presenceAvatars');
+    container.innerHTML = presence.map(p => `
+        <img src="${p.avatar}" title="${p.user_name} (${p.status})" class="h-6 w-6 rounded-full border-2 border-cosmic-950 ring-1 ring-violet-500/40">
+    `).join('');
+}
 
 async function sendHeartbeat() {
     try {
@@ -187,71 +276,60 @@ async function sendHeartbeat() {
                 status: 'ONLINE'
             })
         });
-        await fetchPresence();
+        fetchPresence();
     } catch (e) {
-        console.error("Presence error:", e);
+        console.error("Heartbeat error:", e);
     }
 }
 
-async function fetchPresence() {
-    try {
-        const res = await fetch('/api/presence');
-        const data = await res.json();
-        if (data.success) {
-            const container = document.getElementById('presenceContainer');
-            container.innerHTML = data.presence.map(p => `
-                <div class="flex items-center space-x-2 text-[11px]">
-                    <span class="h-1.5 w-1.5 rounded-full ${p.status === 'ONLINE' ? 'bg-emerald-400' : 'bg-amber-400'}"></span>
-                    <span class="text-zinc-300 font-medium truncate">${p.user_name}</span>
-                </div>
-            `).join('');
-        }
-    } catch (e) {
-        console.error("Presence error:", e);
-    }
-}
-
-const modal = document.getElementById('taskModal');
-document.getElementById('openNewTaskModalBtn').addEventListener('click', () => modal.classList.remove('hidden'));
-document.getElementById('closeModalBtn').addEventListener('click', () => modal.classList.add('hidden'));
-document.getElementById('cancelModalBtn').addEventListener('click', () => modal.classList.add('hidden'));
+// Modal handling
+const modal = document.getElementById('newTaskModal');
+document.getElementById('openNewTaskModalBtn').onclick = () => modal.classList.remove('hidden');
+document.getElementById('closeModalBtn').onclick = () => modal.classList.add('hidden');
+document.getElementById('cancelModalBtn').onclick = () => modal.classList.add('hidden');
 
 document.getElementById('createTaskForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const title = document.getElementById('taskTitleInput').value.trim();
-    const desc = document.getElementById('taskDescInput').value.trim();
+    const description = document.getElementById('taskDescInput').value.trim();
     const priority = document.getElementById('taskPriorityInput').value;
-    const assignee = document.getElementById('taskAssigneeInput').value;
+    const storyPoints = parseInt(document.getElementById('taskPointsInput').value, 10);
+    const assignedTo = document.getElementById('taskAssigneeInput').value;
 
     if (!title) return;
 
     try {
-        await fetch('/api/tasks', {
+        const res = await fetch('/api/tasks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 boardId: currentBoardId,
                 title,
-                description: desc,
+                description,
+                status: 'TODO',
                 priority,
-                assignedTo: assignee
+                storyPoints,
+                assignedTo
             })
         });
-        modal.classList.add('hidden');
-        document.getElementById('createTaskForm').reset();
-        await fetchTasks();
+        const data = await res.json();
+        if (data.success) {
+            modal.classList.add('hidden');
+            document.getElementById('createTaskForm').reset();
+            await fetchTasks();
+        }
     } catch (err) {
-        alert("Failed to create ticket: " + err.message);
+        console.error("Failed to create task:", err);
     }
 });
 
-setInterval(() => {
+// Periodic Heartbeat
+setInterval(sendHeartbeat, 15000);
+
+// Initialize on Load
+document.addEventListener('DOMContentLoaded', () => {
+    fetchWorkspaces();
     fetchTasks();
     fetchMessages();
     fetchPresence();
-}, 4000);
-
-fetchWorkspaces();
-fetchTasks();
-fetchMessages();
-sendHeartbeat();
+});
