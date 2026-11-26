@@ -1,11 +1,10 @@
-// Frontend interactive logic for Synchronize Linear Collaboration Platform
+// Kinetic Motion Collaborative Controller
 let currentWorkspaceId = 'ws-core';
 let currentBoardId = 'bd-sprint-42';
 let currentUser = { id: 'usr-shree', name: 'Shreeharsha N L', role: 'Principal Systems Architect' };
 let tasks = [];
 let taskFilter = 'ALL';
 
-// User selector change
 const userSelector = document.getElementById('userSelector');
 userSelector.addEventListener('change', (e) => {
     const selected = e.target.options[e.target.selectedIndex];
@@ -18,7 +17,6 @@ userSelector.addEventListener('change', (e) => {
     renderTasks();
 });
 
-// Fetch Workspaces
 async function fetchWorkspaces() {
     try {
         const res = await fetch('/api/workspaces');
@@ -26,7 +24,7 @@ async function fetchWorkspaces() {
         if (data.success && data.workspaces.length) {
             const container = document.getElementById('workspaceList');
             container.innerHTML = data.workspaces.map(ws => `
-                <button onclick="selectWorkspace('${ws.id}')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition truncate ${ws.id === currentWorkspaceId ? 'bg-violet-600/30 text-violet-200 font-bold border border-violet-500/40' : 'text-slate-400 hover:text-slate-200 hover:bg-cosmic-900'}">
+                <button onclick="selectWorkspace('${ws.id}')" class="w-full text-left px-3 py-1.5 rounded-lg text-xs transition truncate ${ws.id === currentWorkspaceId ? 'bg-white/10 text-white font-bold' : 'text-[#9e9ea7] hover:text-white hover:bg-white/5'}">
                     ${ws.name}
                 </button>
             `).join('');
@@ -43,7 +41,6 @@ window.selectWorkspace = function(id) {
     fetchMessages();
 };
 
-// Fetch Tasks
 async function fetchTasks() {
     try {
         const res = await fetch(`/api/tasks?boardId=${currentBoardId}`);
@@ -58,14 +55,13 @@ async function fetchTasks() {
     }
 }
 
-// Render Tasks with Filters
 function renderTasks() {
     const columns = ['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE'];
-    const priorityColors = {
-        'URGENT': 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30 font-bold',
-        'HIGH': 'bg-orange-500/20 text-orange-300 border-orange-500/30 font-semibold',
-        'MEDIUM': 'bg-violet-500/20 text-violet-300 border-violet-500/30 font-medium',
-        'LOW': 'bg-slate-800 text-slate-400 border-slate-700'
+    const priorityChips = {
+        'URGENT': 'chip-pink',
+        'HIGH': 'chip-tangerine',
+        'MEDIUM': 'chip-lavender',
+        'LOW': 'chip-sky'
     };
 
     let filtered = tasks;
@@ -81,31 +77,31 @@ function renderTasks() {
         const container = document.getElementById(`col-${col}`);
 
         if (!colTasks.length) {
-            container.innerHTML = `<div class="text-center py-10 text-slate-500 font-mono text-xs border border-dashed border-violet-500/20 rounded-xl">No issues</div>`;
+            container.innerHTML = `<div class="text-center py-8 text-[#9e9ea7] font-mono text-xs border border-dashed border-white/10 rounded-xl">No drops in column</div>`;
             return;
         }
 
         container.innerHTML = colTasks.map(t => `
-            <div class="glass-card p-3.5 space-y-2.5 cursor-grab">
-                <div class="flex items-center justify-between font-mono text-[10px]">
-                    <span class="text-violet-400 font-bold">${t.ticket_id}</span>
-                    <span class="px-2 py-0.5 rounded-full border ${priorityColors[t.priority] || priorityColors['MEDIUM']}">
+            <div class="card-kinetic p-4 space-y-3">
+                <div class="flex items-center justify-between font-mono text-[11px]">
+                    <span class="text-white font-bold">${t.ticket_id}</span>
+                    <span class="chip ${priorityChips[t.priority] || 'chip-lavender'}">
                         ${t.priority}
                     </span>
                 </div>
-                <div class="font-bold text-xs text-white leading-snug">${t.title}</div>
-                ${t.description ? `<p class="text-[11px] text-slate-300 font-sans leading-relaxed line-clamp-2">${t.description}</p>` : ''}
+                <div class="font-extrabold text-sm text-white leading-snug tracking-tight">${t.title}</div>
+                ${t.description ? `<p class="text-xs text-[#9e9ea7] leading-relaxed line-clamp-2">${t.description}</p>` : ''}
                 
-                <div class="flex items-center justify-between pt-2 border-t border-violet-500/15 font-mono text-[10px]">
-                    <div class="flex items-center space-x-1.5 text-slate-300">
-                        <img src="https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(t.assigned_to)}" class="h-4 w-4 rounded-full border border-violet-500/40">
-                        <span class="truncate max-w-[90px]">${t.assigned_to.split(' ')[0]}</span>
+                <div class="flex items-center justify-between pt-2.5 border-t border-white/10 font-mono text-[11px]">
+                    <div class="flex items-center space-x-1.5 text-[#f4f2ec]">
+                        <img src="https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(t.assigned_to)}" class="h-4 w-4 rounded-full border border-white/20">
+                        <span class="truncate max-w-[85px]">${t.assigned_to.split(' ')[0]}</span>
                     </div>
 
                     <div class="flex items-center space-x-1">
-                        <span class="px-1.5 py-0.5 rounded bg-cosmic-950 text-slate-400 border border-violet-500/20 mr-1 font-bold">${t.story_points || 3}pt</span>
-                        ${col !== 'TODO' ? `<button onclick="moveTask('${t.id}', '${getPrev(col)}')" title="Move backward" class="px-2 py-0.5 bg-cosmic-900 hover:bg-violet-600 text-slate-300 hover:text-white rounded border border-violet-500/30 transition">&larr;</button>` : ''}
-                        ${col !== 'DONE' ? `<button onclick="moveTask('${t.id}', '${getNext(col)}')" title="Move forward" class="px-2 py-0.5 bg-cosmic-900 hover:bg-violet-600 text-slate-300 hover:text-white rounded border border-violet-500/30 transition">&rarr;</button>` : ''}
+                        <span class="px-2 py-0.5 rounded-full bg-[#222228] text-white border border-white/10 mr-1 font-bold text-[10px]">${t.story_points || 3}pt</span>
+                        ${col !== 'TODO' ? `<button onclick="moveTask('${t.id}', '${getPrev(col)}')" title="Move back" class="px-2 py-0.5 bg-[#222228] hover:bg-white/20 text-[#f4f2ec] rounded border border-white/10 transition">&larr;</button>` : ''}
+                        ${col !== 'DONE' ? `<button onclick="moveTask('${t.id}', '${getNext(col)}')" title="Move forward" class="px-2 py-0.5 bg-[#222228] hover:bg-[#c8f07a] hover:text-[#0e0e11] text-[#f4f2ec] rounded border border-white/10 transition font-bold">&rarr;</button>` : ''}
                     </div>
                 </div>
             </div>
@@ -130,9 +126,9 @@ window.filterTasks = function(filter) {
         if ((filter === 'ALL' && btn.innerText.includes('All')) ||
             (filter === 'MY' && btn.innerText.includes('My')) ||
             (filter === 'HIGH' && btn.innerText.includes('Urgent'))) {
-            btn.className = "task-filter-btn active px-2.5 py-1 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30 font-semibold";
+            btn.className = "task-filter-btn active px-3 py-1 rounded-full bg-[#c8f07a] text-[#0e0e11] font-bold";
         } else {
-            btn.className = "task-filter-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition";
+            btn.className = "task-filter-btn px-3 py-1 rounded-full text-[#9e9ea7] hover:text-white transition";
         }
     });
     renderTasks();
@@ -161,7 +157,6 @@ function updateSprintVelocity() {
     document.getElementById('velocityPointsDisplay').innerText = `${donePoints} / ${totalPoints} SP`;
 }
 
-// Fetch Messages
 async function fetchMessages() {
     try {
         const res = await fetch(`/api/messages?workspaceId=${currentWorkspaceId}&channel=architecture`);
@@ -177,18 +172,18 @@ async function fetchMessages() {
 function renderMessages(messages) {
     const container = document.getElementById('chatMessages');
     if (!messages.length) {
-        container.innerHTML = `<div class="text-center py-8 text-slate-500 font-mono text-xs">No channel updates yet.</div>`;
+        container.innerHTML = `<div class="text-center py-8 text-[#9e9ea7] font-mono text-xs">No updates in channel.</div>`;
         return;
     }
 
     container.innerHTML = messages.map(m => `
         <div class="space-y-1">
             <div class="flex items-center space-x-2 font-mono text-[11px]">
-                <img src="${m.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(m.user_name)}`}" class="h-4 w-4 rounded-full border border-violet-500/30">
-                <span class="font-bold text-violet-200">${m.user_name}</span>
-                <span class="text-slate-500 text-[10px]">${new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <img src="${m.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(m.user_name)}`}" class="h-4 w-4 rounded-full border border-white/20">
+                <span class="font-bold text-[#c8f07a]">${m.user_name}</span>
+                <span class="text-[#9e9ea7] text-[10px]">${new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
-            <div class="text-slate-200 text-xs bg-cosmic-900/80 p-2.5 rounded-xl border border-violet-500/20 leading-relaxed font-sans shadow-sm">
+            <div class="text-[#f4f2ec] text-xs bg-[#18181c] p-2.5 rounded-xl border border-white/10 leading-relaxed font-sans">
                 ${m.content}
             </div>
         </div>
@@ -224,12 +219,11 @@ document.getElementById('chatForm').addEventListener('submit', async (e) => {
 
 window.simulatePeerMessage = async function() {
     const peerMessages = [
-        "Running performance validation on the Redis adapter. P99 broadcast lag is at 2.1ms across 48 sockets.",
-        "PR #42 for distributed lock leasing passed automated integration tests in CI.",
-        "Kafka consumer lag is fully zeroed out on the production partition mesh.",
-        "Merged the optimistic lock migration. D1 replica sync is executing nominally."
+        "Kinetic socket pipeline benchmark: P99 broadcast latency stable at 2.1ms across 48 pods.",
+        "Verified Redis cluster failover. Inflight WebSocket sessions transferred without disconnect.",
+        "Deployed the optimistic concurrency lock to Sprint 42 board. Replicas in sync."
     ];
-    const randomMsg = peerMessages[Math.floor(Math.random() * peerMessages.length)];
+    const msg = peerMessages[Math.floor(Math.random() * peerMessages.length)];
 
     await fetch('/api/messages', {
         method: 'POST',
@@ -239,13 +233,12 @@ window.simulatePeerMessage = async function() {
             channel: 'architecture',
             userId: 'usr-marcus',
             userName: 'Marcus Vance',
-            content: randomMsg
+            content: msg
         })
     });
     await fetchMessages();
 };
 
-// Fetch Presence
 async function fetchPresence() {
     try {
         const res = await fetch('/api/presence');
@@ -261,7 +254,7 @@ async function fetchPresence() {
 function renderPresence(presence) {
     const container = document.getElementById('presenceAvatars');
     container.innerHTML = presence.map(p => `
-        <img src="${p.avatar}" title="${p.user_name} (${p.status})" class="h-6 w-6 rounded-full border-2 border-cosmic-950 ring-1 ring-violet-500/40">
+        <img src="${p.avatar}" title="${p.user_name} (${p.status})" class="h-6 w-6 rounded-full border-2 border-[#0e0e11] ring-1 ring-[#c8f07a]">
     `).join('');
 }
 
@@ -323,10 +316,8 @@ document.getElementById('createTaskForm').addEventListener('submit', async (e) =
     }
 });
 
-// Periodic Heartbeat
 setInterval(sendHeartbeat, 15000);
 
-// Initialize on Load
 document.addEventListener('DOMContentLoaded', () => {
     fetchWorkspaces();
     fetchTasks();

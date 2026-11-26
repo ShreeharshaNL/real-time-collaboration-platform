@@ -1,82 +1,130 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-    --bg-violet: #0c0a1d;
-    --surface-violet: #14122b;
-    --surface-elevated: #1d193d;
-    --accent-purple: #8b5cf6;
-    --accent-fuchsia: #f43f5e;
-    --border-violet: rgba(139, 92, 246, 0.2);
+    --bg-ink: #0e0e11;
+    --surface-card: #18181c;
+    --surface-elevated: #222228;
+    --color-paper: #f4f2ec;
+    --color-muted: #9e9ea7;
+    --border-color: rgba(255, 255, 255, 0.09);
+    --lime-accent: #c8f07a;
+    --tangerine-accent: #ff8a3d;
+    --lavender-accent: #d6c9ff;
+    --pink-accent: #ffb3c7;
+    --sky-accent: #9fd3ff;
 }
 
 body {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: var(--bg-violet);
-    background-image: 
-        radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.18) 0%, transparent 60%),
-        radial-gradient(circle at 100% 50%, rgba(244, 63, 94, 0.08) 0%, transparent 45%),
-        linear-gradient(to right, rgba(139, 92, 246, 0.03) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+    background-color: var(--bg-ink);
+    color: var(--color-paper);
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: -0.02em;
 }
 
 .font-mono {
     font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0em;
 }
 
-/* 21st.dev Glassmorphic Card */
-.glass-card {
-    background: rgba(20, 18, 43, 0.85);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(139, 92, 246, 0.18);
-    border-radius: 0.85rem;
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+/* Kinetic Logo Icon */
+.kinetic-circle {
+    position: relative;
+    width: 24px;
+    height: 24px;
+}
+.kinetic-circle-outer {
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background-color: var(--lime-accent);
+}
+.kinetic-circle-inner {
+    position: absolute;
+    inset: 6px;
+    border-radius: 9999px;
+    background-color: var(--bg-ink);
 }
 
-.glass-card:hover {
-    border-color: rgba(139, 92, 246, 0.45);
-    box-shadow: 0 8px 25px -5px rgba(139, 92, 246, 0.2);
+/* Kinetic Chips */
+.chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.chip-lime {
+    background-color: var(--lime-accent);
+    color: #0e0e11;
+}
+
+.chip-tangerine {
+    background-color: var(--tangerine-accent);
+    color: #0e0e11;
+}
+
+.chip-lavender {
+    background-color: var(--lavender-accent);
+    color: #0e0e11;
+}
+
+.chip-pink {
+    background-color: var(--pink-accent);
+    color: #0e0e11;
+}
+
+.chip-sky {
+    background-color: var(--sky-accent);
+    color: #0e0e11;
+}
+
+/* Kinetic Cards */
+.card-kinetic {
+    background-color: var(--surface-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-kinetic:hover {
+    border-color: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
 }
 
-/* Kanban column header glow */
-.column-header-todo { border-top: 3px solid #64748b; }
-.column-header-progress { border-top: 3px solid #8b5cf6; }
-.column-header-review { border-top: 3px solid #f59e0b; }
-.column-header-done { border-top: 3px solid #10b981; }
-
-/* 21st.dev Floating Presence Dock */
-.floating-dock {
-    background: rgba(12, 10, 29, 0.85);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(139, 92, 246, 0.3);
-    box-shadow: 0 10px 35px -5px rgba(139, 92, 246, 0.25);
+/* Kinetic Buttons */
+.btn-kinetic-primary {
+    background-color: var(--lime-accent);
+    color: #0e0e11;
+    font-weight: 700;
+    border-radius: 9999px;
+    padding: 8px 18px;
+    transition: all 0.15s ease;
+}
+.btn-kinetic-primary:hover {
+    background-color: #d6f890;
+    transform: scale(1.02);
+}
+.btn-kinetic-primary:active {
+    transform: scale(0.98);
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: #0c0a1d;
+    background: #0e0e11;
 }
 ::-webkit-scrollbar-thumb {
-    background: #25204c;
+    background: #27272e;
     border-radius: 3px;
-    border: 1px solid rgba(139, 92, 246, 0.2);
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #8b5cf6;
-}
-
-/* Sparkle celebration animation */
-@keyframes pop {
-    0% { transform: scale(0.95); opacity: 0; }
-    50% { transform: scale(1.02); }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.animate-pop {
-    animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background: #3f3f46;
 }
