@@ -3,261 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kinetic // Real-Time Collaborative Engineering Platform</title>
+    <title>Kinetic — Real-Time Collaborative Engineering Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="min-h-screen flex flex-col font-sans antialiased text-[#f4f2ec] bg-[#0e0e11] selection:bg-[#c8f07a] selection:text-[#0e0e11]">
-    <!-- Top Kinetic Navigation -->
-    <header class="border-b border-white/10 bg-[#0e0e11]/90 backdrop-blur-md sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3.5">
-                <a href="/" class="flex items-center space-x-2 text-[20px] font-extrabold tracking-[-0.03em] text-[#f4f2ec]">
-                    <span class="kinetic-circle">
-                        <span class="kinetic-circle-outer"></span>
-                        <span class="kinetic-circle-inner"></span>
-                    </span>
-                    <span>kinetic</span>
-                </a>
-                <div class="h-4 w-px bg-white/10 hidden sm:block"></div>
-                <span class="text-xs font-mono text-[#9e9ea7] hidden sm:inline">/ engineering-mesh.v2</span>
-                <span class="chip chip-lime hidden md:inline-flex">REDIS 7.2 SYNC</span>
+<body class="min-h-screen flex flex-col font-sans antialiased text-[#f4f2ec] bg-[#0a0a0c] selection:bg-[#c8f07a] selection:text-[#0a0a0c]">
+    
+    <!-- Top Kinetic Navigation (Exact Match to Screenshot 1) -->
+    <header class="max-w-7xl mx-auto w-full px-6 h-20 flex items-center justify-between z-50">
+        <!-- Logo -->
+        <a href="/" class="flex items-center space-x-2.5 text-[22px] font-extrabold tracking-[-0.03em] text-[#f4f2ec]">
+            <span class="kinetic-circle">
+                <span class="kinetic-circle-outer"></span>
+                <span class="kinetic-circle-inner"></span>
+            </span>
+            <span>kinetic</span>
+        </a>
+
+        <!-- Center Menu Pill -->
+        <div class="hidden sm:flex items-center">
+            <button type="button" class="flex items-center space-x-2.5 rounded-full px-5 py-2 text-sm font-bold bg-[#141416] border border-white/10 hover:border-white/25 transition">
+                <span class="flex flex-col space-y-1">
+                    <span class="h-[2px] w-4 bg-white"></span>
+                    <span class="h-[2px] w-4 bg-white"></span>
+                </span>
+                <span>Menu</span>
+            </button>
+        </div>
+
+        <!-- Right Action CTAs -->
+        <div class="flex items-center space-x-4">
+            <div class="hidden md:flex items-center space-x-2 text-xs font-mono text-[#8e8e96]">
+                <span class="h-2 w-2 rounded-full bg-[#c8f07a]"></span>
+                <span class="text-white font-bold" id="socketLagDisplay">2.4ms Lag</span>
             </div>
 
-            <!-- Active User & Action CTA -->
-            <div class="flex items-center space-x-3">
-                <div class="flex items-center space-x-2 bg-[#18181c] border border-white/10 px-3 py-1.5 rounded-full text-xs font-mono text-[#f4f2ec]">
-                    <span class="text-[#9e9ea7] hidden sm:inline">Active:</span>
-                    <select id="userSelector" class="bg-transparent text-[#c8f07a] font-bold focus:outline-none cursor-pointer">
-                        <option value="usr-shree" data-name="Shreeharsha N L" data-role="Principal Systems Architect">Shreeharsha N L (Principal)</option>
-                        <option value="usr-marcus" data-name="Marcus Vance" data-role="Lead Distributed Systems SRE">Marcus Vance (Lead SRE)</option>
-                        <option value="usr-elena" data-name="Dr. Elena Rostova" data-role="Staff Research Scientist">Dr. Elena Rostova (Staff AI)</option>
-                    </select>
-                </div>
-
-                <button id="openNewTaskModalBtn" class="btn-kinetic-primary text-xs flex items-center space-x-1.5">
-                    <span>+ New Issue</span>
-                </button>
-
-                <a href="https://github.com/ShreeharshaNL/real-time-collaboration-platform" target="_blank" class="px-3 py-1.5 rounded-full border border-white/15 hover:border-white/30 text-xs font-mono text-[#f4f2ec] transition">
-                    GitHub
-                </a>
-            </div>
+            <button id="openNewTaskModalBtn" class="btn-kinetic-primary text-xs sm:text-sm">
+                + New Issue
+            </button>
         </div>
     </header>
 
-    <!-- Kinetic Hero Banner -->
-    <div class="border-b border-white/10 bg-[#121215] py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-            <div class="space-y-3 max-w-3xl">
-                <div class="flex items-center space-x-2">
-                    <span class="chip chip-lime">SPRINT 42</span>
-                    <span class="chip chip-lavender">SUB-10MS BROADCAST</span>
-                    <span class="chip chip-tangerine">48 SOCKETS ONLINE</span>
-                </div>
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-[-0.04em] text-white leading-tight">
-                    Your next feature, <span class="text-[#c8f07a]">already moving.</span>
-                </h1>
-                <p class="text-base text-[#9e9ea7] leading-relaxed max-w-2xl font-normal">
-                    Start at ninety percent. Finish in minutes. Real-time engineering sync powered by Node.js, Socket.IO multi-node clustering with Redis Pub/Sub, and Cloudflare D1 persistence.
-                </p>
-            </div>
+    <!-- Main Content Container with Spacious Layout -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 space-y-16">
+        
+        <!-- Center Stage Hero Section (Exact Replica of User's Screenshot 1) -->
+        <section class="relative">
+            <!-- Decorative Floating Shapes (Exact match from screenshot) -->
+            <div class="absolute -left-8 top-1/3 w-24 h-12 border-4 border-[#d6c9ff] rounded-full rotate-45 -z-10 opacity-70 pointer-events-none hidden lg:block"></div>
+            <div class="absolute -right-6 top-1/4 w-28 h-28 bg-[#9fd3ff] rounded-3xl -rotate-12 -z-10 opacity-60 pointer-events-none hidden lg:block"></div>
 
-            <!-- Kinetic Velocity Meter -->
-            <div class="card-kinetic p-4 rounded-2xl min-w-[260px] space-y-2.5 shrink-0 border border-white/10">
-                <div class="flex items-center justify-between text-xs font-mono">
-                    <span class="text-[#9e9ea7] font-semibold">Sprint Velocity</span>
-                    <span id="velocityPercentage" class="text-[#c8f07a] font-bold">75%</span>
-                </div>
-                <div class="w-full bg-[#222228] rounded-full h-2 overflow-hidden">
-                    <div id="velocityProgressBar" class="bg-[#c8f07a] h-2 rounded-full transition-all duration-500" style="width: 75%"></div>
-                </div>
-                <div class="flex items-center justify-between text-[11px] font-mono text-[#9e9ea7]">
-                    <span>Points Shipped:</span>
-                    <span id="velocityPointsDisplay" class="text-white font-bold">18 / 24 SP</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Workspace Layout -->
-    <div class="flex-1 flex overflow-hidden relative">
-        <!-- Sidebar Navigation -->
-        <aside class="w-60 border-r border-white/10 bg-[#0e0e11] p-4 flex flex-col space-y-6 shrink-0 hidden md:flex font-mono text-xs">
-            <div>
-                <div class="text-[10px] uppercase tracking-wider text-[#9e9ea7] font-bold mb-2">Workspaces</div>
-                <div id="workspaceList" class="space-y-1">
-                    <!-- Workspaces -->
-                </div>
-            </div>
-
-            <div>
-                <div class="text-[10px] uppercase tracking-wider text-[#9e9ea7] font-bold mb-2">Live Channels</div>
-                <div class="space-y-1">
-                    <button class="w-full text-left px-3 py-1.5 rounded-lg bg-white/10 text-white font-bold flex items-center space-x-2">
-                        <span class="text-[#c8f07a]">#</span>
-                        <span>architecture</span>
-                    </button>
-                    <button class="w-full text-left px-3 py-1.5 rounded-lg text-[#9e9ea7] hover:text-white hover:bg-white/5 transition flex items-center space-x-2">
-                        <span class="text-zinc-600">#</span>
-                        <span>friday-drops</span>
-                    </button>
-                    <button class="w-full text-left px-3 py-1.5 rounded-lg text-[#9e9ea7] hover:text-white hover:bg-white/5 transition flex items-center space-x-2">
-                        <span class="text-zinc-600">#</span>
-                        <span>incident-room</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="mt-auto pt-4 border-t border-white/10 text-[11px] text-[#9e9ea7] space-y-1">
-                <div class="text-white font-bold">Platform Specs</div>
-                <div>Redis 7.2 Pub/Sub</div>
-                <div>Cloudflare D1 SQL</div>
-                <div>P99 Lag: 2.4ms</div>
-            </div>
-        </aside>
-
-        <!-- Center Kanban Studio -->
-        <main class="flex-1 flex flex-col min-w-0 bg-[#0e0e11] overflow-hidden">
-            <!-- Filter Bar -->
-            <div class="h-14 border-b border-white/10 px-6 flex items-center justify-between shrink-0 bg-[#121215]">
-                <div class="flex items-center space-x-3 text-xs font-mono">
-                    <span class="font-bold text-white tracking-wide">KANBAN BOARD</span>
-                    <span class="text-zinc-600">|</span>
-                    <div class="flex items-center space-x-1.5" id="taskFilterButtons">
-                        <button onclick="filterTasks('ALL')" class="task-filter-btn active px-3 py-1 rounded-full bg-[#c8f07a] text-[#0e0e11] font-bold">All Tasks</button>
-                        <button onclick="filterTasks('MY')" class="task-filter-btn px-3 py-1 rounded-full text-[#9e9ea7] hover:text-white transition">My Issues</button>
-                        <button onclick="filterTasks('HIGH')" class="task-filter-btn px-3 py-1 rounded-full text-[#9e9ea7] hover:text-white transition">Urgent & High</button>
+            <!-- Central Large Dark Stage Container -->
+            <div class="kinetic-stage p-8 sm:p-12 lg:p-16 space-y-10">
+                
+                <!-- Huge Headline (Exact match from screenshot) -->
+                <div class="space-y-4">
+                    <h1 class="text-6xl sm:text-7xl lg:text-8xl font-extrabold tracking-[-0.04em] leading-[1.02] text-[#f4f2ec]">
+                        your next <span class="text-[#c8f07a]">feature.</span>
+                    </h1>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between text-xs sm:text-sm text-[#8e8e96] pt-2">
+                        <p class="max-w-xl text-base text-[#8e8e96] font-normal">
+                            High-concurrency distributed engineering workspace with Redis 7.2 Pub/Sub socket synchronization and Cloudflare D1 persistence.
+                        </p>
+                        <span class="hidden sm:inline font-mono text-[13px] text-[#8e8e96]">
+                            Change the words, statuses and timing right here
+                        </span>
                     </div>
                 </div>
 
-                <button onclick="fetchTasks()" class="text-xs font-mono text-[#c8f07a] hover:underline">
-                    &circlearrowright; Refresh Board
-                </button>
+                <!-- 4 Colorful Interactive Preview Cards (Exact Match to Screenshot 1) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
+                    
+                    <!-- Card 1: Tangerine Audio/Activity Reactive -->
+                    <div class="bg-[#ff8a3d] text-[#0a0a0c] rounded-2xl p-5 flex flex-col justify-between h-44 shadow-lg cursor-pointer hover:scale-[1.02] transition">
+                        <div class="text-[11px] font-mono font-black tracking-widest uppercase">
+                            AUDIO REACTIVE
+                        </div>
+                        <!-- Animated Equalizer Bars -->
+                        <div class="flex items-end space-x-1.5 h-12">
+                            <span class="w-2.5 bg-[#0a0a0c] rounded-full eq-bar-1"></span>
+                            <span class="w-2.5 bg-[#0a0a0c] rounded-full eq-bar-2"></span>
+                            <span class="w-2.5 bg-[#0a0a0c] rounded-full eq-bar-3"></span>
+                            <span class="w-2.5 bg-[#0a0a0c] rounded-full eq-bar-4"></span>
+                            <span class="w-2.5 bg-[#0a0a0c] rounded-full eq-bar-5"></span>
+                            <span class="w-2.5 bg-[#0a0a0c] rounded-full eq-bar-6"></span>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Sky Blue Active Engineer Card -->
+                    <div class="bg-[#9fd3ff] text-[#0a0a0c] rounded-2xl p-5 flex flex-col justify-end space-y-2 h-44 shadow-lg cursor-pointer hover:scale-[1.02] transition">
+                        <div class="bg-[#0a0a0c] text-white rounded-xl px-3.5 py-1.5 font-bold text-xs self-start" id="activeEngineerBadge">
+                            Shreeharsha N L
+                        </div>
+                        <div class="bg-white text-[#0a0a0c] rounded-xl px-3.5 py-1.5 font-semibold text-[11px] self-start shadow-sm">
+                            Principal Systems Architect
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Lavender Sockets Metric Ring -->
+                    <div class="bg-[#d6c9ff] text-[#0a0a0c] rounded-2xl p-5 flex flex-col justify-between h-44 shadow-lg cursor-pointer hover:scale-[1.02] transition">
+                        <div class="text-[11px] font-mono font-bold tracking-wider uppercase">
+                            REDIS PUB/SUB MESH
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="h-14 w-14 rounded-full border-4 border-[#0a0a0c] flex items-center justify-center">
+                                <span class="h-3 w-3 rounded-full bg-[#0a0a0c]"></span>
+                            </div>
+                            <span class="text-sm font-black font-mono" id="activeSocketsDisplay">48 ONLINE</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Pink Spinning Drop Badge -->
+                    <div class="bg-[#ffb3c7] text-[#0a0a0c] rounded-2xl p-5 flex items-center justify-center h-44 shadow-lg relative overflow-hidden cursor-pointer hover:scale-[1.02] transition">
+                        <div class="relative h-24 w-24 flex items-center justify-center">
+                            <!-- Spinning text ring -->
+                            <svg class="spin-text absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+                                <path id="textCircle" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none"></path>
+                                <text font-size="9.5" font-weight="900" letter-spacing="2">
+                                    <textPath href="#textCircle" fill="#0a0a0c">
+                                        • NEW DROP • SPRINT 42 • NEW DROP •
+                                    </textPath>
+                                </text>
+                            </svg>
+                            <span class="h-4 w-6 rounded-full bg-[#0a0a0c]"></span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Unclustered, Spacious Kanban Board Section -->
+        <section class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">Sprint 42 Kanban Board</h2>
+                    <p class="text-sm text-[#8e8e96] mt-1">Live distributed task synchronization powered by Cloudflare D1 SQL.</p>
+                </div>
+
+                <!-- Filter Chips -->
+                <div class="flex items-center space-x-2 text-xs font-mono" id="taskFilterButtons">
+                    <button onclick="filterTasks('ALL')" class="task-filter-btn active chip chip-lime">All Tasks</button>
+                    <button onclick="filterTasks('MY')" class="task-filter-btn chip bg-white/10 text-white">My Issues</button>
+                    <button onclick="filterTasks('HIGH')" class="task-filter-btn chip bg-white/10 text-white">Urgent & High</button>
+                </div>
             </div>
 
             <!-- Kanban Column Grid -->
-            <div class="flex-1 p-6 overflow-x-auto overflow-y-auto">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 min-w-[850px] h-full items-start">
-                    
-                    <!-- Column 1: Backlog -->
-                    <div class="bg-[#18181c] rounded-2xl border border-white/10 flex flex-col max-h-full">
-                        <div class="p-4 border-b border-white/10 flex items-center justify-between">
-                            <div class="flex items-center space-x-2">
-                                <span class="chip chip-lavender">BACKLOG</span>
-                            </div>
-                            <span id="count-TODO" class="font-mono text-xs text-[#9e9ea7] font-bold">0</span>
-                        </div>
-                        <div id="col-TODO" class="p-3 space-y-3 overflow-y-auto flex-1 min-h-[220px]">
-                            <!-- Tasks -->
-                        </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Column 1: Backlog -->
+                <div class="bg-[#141416] rounded-3xl p-5 border border-white/10 flex flex-col space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <span class="chip chip-lavender">Backlog</span>
+                        <span id="count-TODO" class="font-mono text-xs text-[#8e8e96] font-bold">0</span>
                     </div>
-
-                    <!-- Column 2: In Production -->
-                    <div class="bg-[#18181c] rounded-2xl border border-white/10 flex flex-col max-h-full">
-                        <div class="p-4 border-b border-white/10 flex items-center justify-between">
-                            <div class="flex items-center space-x-2">
-                                <span class="chip chip-tangerine">IN PRODUCTION</span>
-                            </div>
-                            <span id="count-IN_PROGRESS" class="font-mono text-xs text-[#ff8a3d] font-bold">0</span>
-                        </div>
-                        <div id="col-IN_PROGRESS" class="p-3 space-y-3 overflow-y-auto flex-1 min-h-[220px]">
-                            <!-- Tasks -->
-                        </div>
+                    <div id="col-TODO" class="space-y-3 flex-1 min-h-[220px]">
+                        <!-- Dynamic Tasks -->
                     </div>
-
-                    <!-- Column 3: Review -->
-                    <div class="bg-[#18181c] rounded-2xl border border-white/10 flex flex-col max-h-full">
-                        <div class="p-4 border-b border-white/10 flex items-center justify-between">
-                            <div class="flex items-center space-x-2">
-                                <span class="chip chip-sky">CODE REVIEW</span>
-                            </div>
-                            <span id="count-REVIEW" class="font-mono text-xs text-[#9fd3ff] font-bold">0</span>
-                        </div>
-                        <div id="col-REVIEW" class="p-3 space-y-3 overflow-y-auto flex-1 min-h-[220px]">
-                            <!-- Tasks -->
-                        </div>
-                    </div>
-
-                    <!-- Column 4: Completed Drops -->
-                    <div class="bg-[#18181c] rounded-2xl border border-white/10 flex flex-col max-h-full">
-                        <div class="p-4 border-b border-white/10 flex items-center justify-between">
-                            <div class="flex items-center space-x-2">
-                                <span class="chip chip-lime">SHIPPED DROPS</span>
-                            </div>
-                            <span id="count-DONE" class="font-mono text-xs text-[#c8f07a] font-bold">0</span>
-                        </div>
-                        <div id="col-DONE" class="p-3 space-y-3 overflow-y-auto flex-1 min-h-[220px]">
-                            <!-- Tasks -->
-                        </div>
-                    </div>
-
                 </div>
+
+                <!-- Column 2: In Production -->
+                <div class="bg-[#141416] rounded-3xl p-5 border border-white/10 flex flex-col space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <span class="chip chip-tangerine">In Production</span>
+                        <span id="count-IN_PROGRESS" class="font-mono text-xs text-[#ff8a3d] font-bold">0</span>
+                    </div>
+                    <div id="col-IN_PROGRESS" class="space-y-3 flex-1 min-h-[220px]">
+                        <!-- Dynamic Tasks -->
+                    </div>
+                </div>
+
+                <!-- Column 3: Review -->
+                <div class="bg-[#141416] rounded-3xl p-5 border border-white/10 flex flex-col space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <span class="chip chip-sky">Code Review</span>
+                        <span id="count-REVIEW" class="font-mono text-xs text-[#9fd3ff] font-bold">0</span>
+                    </div>
+                    <div id="col-REVIEW" class="space-y-3 flex-1 min-h-[220px]">
+                        <!-- Dynamic Tasks -->
+                    </div>
+                </div>
+
+                <!-- Column 4: Shipped Drops -->
+                <div class="bg-[#141416] rounded-3xl p-5 border border-white/10 flex flex-col space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <span class="chip chip-lime">Shipped Drops</span>
+                        <span id="count-DONE" class="font-mono text-xs text-[#c8f07a] font-bold">0</span>
+                    </div>
+                    <div id="col-DONE" class="space-y-3 flex-1 min-h-[220px]">
+                        <!-- Dynamic Tasks -->
+                    </div>
+                </div>
+
             </div>
-        </main>
+        </section>
 
-        <!-- Right Live Chat Panel -->
-        <aside class="w-80 border-l border-white/10 bg-[#121215] flex flex-col shrink-0 hidden lg:flex font-mono text-xs">
-            <div class="h-14 border-b border-white/10 px-4 flex items-center justify-between shrink-0">
-                <div class="flex items-center space-x-2">
-                    <span class="h-2 w-2 rounded-full bg-[#c8f07a]"></span>
-                    <span class="font-bold text-white tracking-wide">#architecture</span>
+        <!-- Live Engineering Channel & Chat Section -->
+        <section class="bg-[#141416] rounded-3xl p-6 sm:p-8 border border-white/10 space-y-5">
+            <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                <div class="flex items-center space-x-3">
+                    <span class="h-3 w-3 rounded-full bg-[#c8f07a]"></span>
+                    <h3 class="font-bold text-xl text-white">#architecture &bull; Real-Time Socket Stream</h3>
                 </div>
-                <button onclick="simulatePeerMessage()" class="chip chip-lime text-[10px] cursor-pointer">
-                    + Peer Reply
+                <button onclick="simulatePeerMessage()" class="chip chip-lime cursor-pointer text-xs">
+                    + Peer Reply (Marcus Vance)
                 </button>
             </div>
 
-            <!-- Messages Stream -->
-            <div id="chatMessages" class="flex-1 p-4 space-y-3 overflow-y-auto">
-                <!-- Messages -->
+            <!-- Dynamic Messages from /api/messages -->
+            <div id="chatMessages" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                <!-- Dynamically loaded from D1 -->
             </div>
 
             <!-- Message Form -->
-            <form id="chatForm" class="p-3 border-t border-white/10 bg-[#18181c] flex items-center space-x-2">
-                <input type="text" id="chatInput" placeholder="Broadcast socket message..." class="flex-1 bg-[#0e0e11] border border-white/10 rounded-full px-3.5 py-2 text-xs text-white focus:outline-none focus:border-[#c8f07a] font-sans">
-                <button type="submit" class="btn-kinetic-primary py-2 px-4 text-xs font-bold">
-                    Send
+            <form id="chatForm" class="flex items-center space-x-3 pt-2">
+                <input type="text" id="chatInput" placeholder="Broadcast socket message to all connected peers..." class="flex-1 bg-[#1a1a1e] border border-white/10 rounded-full px-5 py-3 text-sm text-white focus:outline-none focus:border-[#c8f07a] transition">
+                <button type="submit" class="btn-kinetic-primary text-sm px-6">
+                    Broadcast
                 </button>
             </form>
-        </aside>
-    </div>
+        </section>
 
-    <!-- Floating Presence Dock -->
-    <div class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-[#18181c]/90 backdrop-blur-md border border-white/15 px-4 py-2 rounded-full flex items-center space-x-3.5 z-50 shadow-2xl">
-        <span class="chip chip-lime text-[10px]">PRESENCE</span>
-        <div id="presenceAvatars" class="flex items-center -space-x-2">
-            <!-- Avatars -->
-        </div>
-        <span class="text-[10px] font-mono text-[#9e9ea7] hidden sm:inline" id="presenceStatusText">All 48 sockets synchronized</span>
-    </div>
+    </main>
 
     <!-- Modal: Create New Issue -->
-    <div id="newTaskModal" class="fixed inset-0 bg-black/70 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-        <div class="bg-[#18181c] border border-white/15 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-2xl">
-            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+    <div id="newTaskModal" class="fixed inset-0 bg-black/75 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <div class="bg-[#141416] border border-white/15 rounded-3xl p-8 max-w-lg w-full space-y-6 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-white/10 pb-4">
                 <div class="flex items-center space-x-2">
                     <span class="chip chip-lime">NEW TICKET</span>
-                    <h3 class="font-black text-lg text-white">Create Issue</h3>
+                    <h3 class="font-black text-xl text-white">Create Issue</h3>
                 </div>
-                <button id="closeModalBtn" class="text-[#9e9ea7] hover:text-white text-xl">&times;</button>
+                <button id="closeModalBtn" class="text-[#8e8e96] hover:text-white text-2xl font-mono">&times;</button>
             </div>
 
-            <form id="createTaskForm" class="space-y-4 text-xs font-mono">
-                <div class="space-y-1">
-                    <label class="text-[#9e9ea7] font-semibold">Issue Title:</label>
-                    <input type="text" id="taskTitleInput" required placeholder="e.g. Implement Kafka tombstone event handler" class="w-full bg-[#0e0e11] border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[#c8f07a] font-sans text-sm">
+            <form id="createTaskForm" class="space-y-4 text-sm font-sans">
+                <div class="space-y-1.5">
+                    <label class="text-[#8e8e96] font-semibold text-xs font-mono uppercase">Issue Title:</label>
+                    <input type="text" id="taskTitleInput" required placeholder="e.g. Implement Kafka tombstone event handler" class="w-full bg-[#1a1a1e] border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[#c8f07a]">
                 </div>
 
-                <div class="space-y-1">
-                    <label class="text-[#9e9ea7] font-semibold">Technical Description:</label>
-                    <textarea id="taskDescInput" rows="3" placeholder="Context, invariants, and acceptance criteria..." class="w-full bg-[#0e0e11] border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[#c8f07a] font-sans text-sm"></textarea>
+                <div class="space-y-1.5">
+                    <label class="text-[#8e8e96] font-semibold text-xs font-mono uppercase">Technical Description:</label>
+                    <textarea id="taskDescInput" rows="3" placeholder="Context, invariants, and acceptance criteria..." class="w-full bg-[#1a1a1e] border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[#c8f07a]"></textarea>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1">
-                        <label class="text-[#9e9ea7] font-semibold">Priority:</label>
-                        <select id="taskPriorityInput" class="w-full bg-[#0e0e11] border border-white/10 rounded-xl p-2.5 text-white focus:outline-none">
+                    <div class="space-y-1.5">
+                        <label class="text-[#8e8e96] font-semibold text-xs font-mono uppercase">Priority:</label>
+                        <select id="taskPriorityInput" class="w-full bg-[#1a1a1e] border border-white/10 rounded-xl p-3 text-white focus:outline-none font-mono text-xs">
                             <option value="URGENT">URGENT</option>
                             <option value="HIGH">HIGH</option>
                             <option value="MEDIUM" selected>MEDIUM</option>
@@ -265,9 +260,9 @@
                         </select>
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="text-[#9e9ea7] font-semibold">Story Points:</label>
-                        <select id="taskPointsInput" class="w-full bg-[#0e0e11] border border-white/10 rounded-xl p-2.5 text-white focus:outline-none">
+                    <div class="space-y-1.5">
+                        <label class="text-[#8e8e96] font-semibold text-xs font-mono uppercase">Story Points:</label>
+                        <select id="taskPointsInput" class="w-full bg-[#1a1a1e] border border-white/10 rounded-xl p-3 text-white focus:outline-none font-mono text-xs">
                             <option value="1">1 pt (Trivial)</option>
                             <option value="2">2 pts (Minor)</option>
                             <option value="3" selected>3 pts (Standard)</option>
@@ -277,17 +272,17 @@
                     </div>
                 </div>
 
-                <div class="space-y-1">
-                    <label class="text-[#9e9ea7] font-semibold">Assignee:</label>
-                    <select id="taskAssigneeInput" class="w-full bg-[#0e0e11] border border-white/10 rounded-xl p-2.5 text-white focus:outline-none">
+                <div class="space-y-1.5">
+                    <label class="text-[#8e8e96] font-semibold text-xs font-mono uppercase">Assignee:</label>
+                    <select id="taskAssigneeInput" class="w-full bg-[#1a1a1e] border border-white/10 rounded-xl p-3 text-white focus:outline-none font-mono text-xs">
                         <option value="Shreeharsha N L">Shreeharsha N L (Principal Architect)</option>
                         <option value="Marcus Vance">Marcus Vance (Lead SRE)</option>
                         <option value="Dr. Elena Rostova">Dr. Elena Rostova (Staff Researcher)</option>
                     </select>
                 </div>
 
-                <div class="pt-3 border-t border-white/10 flex items-center justify-end space-x-3">
-                    <button type="button" id="cancelModalBtn" class="px-4 py-2 rounded-full text-[#9e9ea7] hover:text-white transition">Cancel</button>
+                <div class="pt-4 border-t border-white/10 flex items-center justify-end space-x-3">
+                    <button type="button" id="cancelModalBtn" class="px-5 py-2.5 rounded-full text-[#8e8e96] hover:text-white transition font-medium">Cancel</button>
                     <button type="submit" class="btn-kinetic-primary">
                         Create Drop &rarr;
                     </button>
@@ -295,6 +290,14 @@
             </form>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-[#0e0e11] py-10 text-center text-sm text-[#8e8e96] mt-12">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>Kinetic Platform &bull; Node.js, Socket.IO, Redis 7.2 Pub/Sub & Cloudflare D1</div>
+            <div class="text-[#c8f07a] font-bold">Engineered by Shreeharsha N L &bull; shreeharsha.online</div>
+        </div>
+    </footer>
 
     <script src="app.js"></script>
 </body>
