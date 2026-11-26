@@ -1,10 +1,9 @@
-// Frontend logic for Real-Time Collaboration Platform
-let currentWorkspaceId = 'ws-1';
-let currentBoardId = 'bd-1';
-let currentUser = { id: 'usr-1', name: 'Shreeharsha N L', role: 'OWNER' };
+// Frontend logic for Synchronize Linear Collab
+let currentWorkspaceId = 'ws-core';
+let currentBoardId = 'bd-sprint-42';
+let currentUser = { id: 'usr-shree', name: 'Shreeharsha N L', role: 'Principal Systems Architect' };
 let tasks = [];
 
-// Init User Selector
 const userSelector = document.getElementById('userSelector');
 userSelector.addEventListener('change', (e) => {
     const selected = e.target.options[e.target.selectedIndex];
@@ -16,7 +15,6 @@ userSelector.addEventListener('change', (e) => {
     sendHeartbeat();
 });
 
-// Load Workspaces
 async function fetchWorkspaces() {
     try {
         const res = await fetch('/api/workspaces');
@@ -24,13 +22,13 @@ async function fetchWorkspaces() {
         if (data.success && data.workspaces.length) {
             const container = document.getElementById('workspaceList');
             container.innerHTML = data.workspaces.map(ws => `
-                <button onclick="selectWorkspace('${ws.id}')" class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition truncate ${ws.id === currentWorkspaceId ? 'bg-indigo-600/20 text-indigo-300 font-semibold border border-indigo-500/30' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}">
+                <button onclick="selectWorkspace('${ws.id}')" class="w-full text-left px-2 py-1.5 rounded text-xs transition truncate ${ws.id === currentWorkspaceId ? 'bg-zinc-850 text-white font-medium border border-zinc-700' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900'}">
                     ${ws.name}
                 </button>
             `).join('');
         }
     } catch (e) {
-        console.error("Failed to fetch workspaces:", e);
+        console.error("Failed to load workspaces:", e);
     }
 }
 
@@ -41,7 +39,6 @@ window.selectWorkspace = function(id) {
     fetchMessages();
 };
 
-// Load Tasks
 async function fetchTasks() {
     try {
         const res = await fetch(`/api/tasks?boardId=${currentBoardId}`);
@@ -58,10 +55,10 @@ async function fetchTasks() {
 function renderTasks() {
     const columns = ['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE'];
     const priorityColors = {
-        'URGENT': 'bg-red-500/20 text-red-400 border-red-500/30',
-        'HIGH': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-        'MEDIUM': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-        'LOW': 'bg-slate-500/20 text-slate-400 border-slate-500/30'
+        'URGENT': 'bg-red-500/10 text-red-400 border-red-500/20',
+        'HIGH': 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+        'MEDIUM': 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+        'LOW': 'bg-zinc-800 text-zinc-400 border-zinc-700'
     };
 
     columns.forEach(col => {
@@ -70,46 +67,40 @@ function renderTasks() {
         const container = document.getElementById(`col-${col}`);
 
         if (!colTasks.length) {
-            container.innerHTML = `<div class="text-center py-8 text-slate-600 text-xs border border-dashed border-slate-800/80 rounded-lg">No tasks</div>`;
+            container.innerHTML = `<div class="text-center py-10 text-zinc-600 font-mono text-xs border border-dashed border-zinc-800/80 rounded">Empty</div>`;
             return;
         }
 
         container.innerHTML = colTasks.map(t => `
-            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 shadow-sm hover:border-slate-700 transition space-y-2">
-                <div class="flex items-start justify-between">
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded border ${priorityColors[t.priority] || priorityColors['MEDIUM']}">
+            <div class="bg-zinc-950/90 p-3 rounded-lg border border-zinc-800/80 shadow-sm hover:border-zinc-700 transition space-y-2">
+                <div class="flex items-center justify-between font-mono text-[10px]">
+                    <span class="text-zinc-500 font-semibold">${t.ticket_id}</span>
+                    <span class="px-1.5 py-0.5 rounded border ${priorityColors[t.priority] || priorityColors['MEDIUM']}">
                         ${t.priority}
                     </span>
-                    <div class="flex items-center space-x-1">
-                        ${col !== 'TODO' ? `<button onclick="moveTask('${t.id}', '${getPrevStatus(col)}')" class="text-slate-400 hover:text-white p-1 text-[10px]" title="Move Back"><i class="fa-solid fa-arrow-left"></i></button>` : ''}
-                        ${col !== 'DONE' ? `<button onclick="moveTask('${t.id}', '${getNextStatus(col)}')" class="text-slate-400 hover:text-white p-1 text-[10px]" title="Move Forward"><i class="fa-solid fa-arrow-right"></i></button>` : ''}
-                    </div>
                 </div>
-                <div class="font-semibold text-xs text-white">${t.title}</div>
-                ${t.description ? `<p class="text-[11px] text-slate-400">${t.description}</p>` : ''}
-                <div class="flex items-center justify-between pt-1 border-t border-slate-900 text-[10px] text-slate-500">
-                    <span class="flex items-center space-x-1">
-                        <i class="fa-regular fa-user text-slate-400"></i>
-                        <span class="text-slate-300 font-medium">${t.assigned_to || 'Unassigned'}</span>
-                    </span>
-                    <span class="font-mono">${t.id}</span>
+                <div class="font-medium text-xs text-white">${t.title}</div>
+                ${t.description ? `<p class="text-[11px] text-zinc-400 font-sans leading-relaxed">${t.description}</p>` : ''}
+                <div class="flex items-center justify-between pt-2 border-t border-zinc-900 font-mono text-[10px] text-zinc-500">
+                    <span class="text-zinc-300">${t.assigned_to}</span>
+                    <div class="flex items-center space-x-1">
+                        ${col !== 'TODO' ? `<button onclick="moveTask('${t.id}', '${getPrev(col)}')" class="px-1.5 py-0.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded border border-zinc-800">&larr;</button>` : ''}
+                        ${col !== 'DONE' ? `<button onclick="moveTask('${t.id}', '${getNext(col)}')" class="px-1.5 py-0.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded border border-zinc-800">&rarr;</button>` : ''}
+                    </div>
                 </div>
             </div>
         `).join('');
     });
 }
 
-function getNextStatus(curr) {
-    if (curr === 'TODO') return 'IN_PROGRESS';
-    if (curr === 'IN_PROGRESS') return 'REVIEW';
-    if (curr === 'REVIEW') return 'DONE';
+function getNext(c) {
+    if (c === 'TODO') return 'IN_PROGRESS';
+    if (c === 'IN_PROGRESS') return 'REVIEW';
     return 'DONE';
 }
-
-function getPrevStatus(curr) {
-    if (curr === 'DONE') return 'REVIEW';
-    if (curr === 'REVIEW') return 'IN_PROGRESS';
-    if (curr === 'IN_PROGRESS') return 'TODO';
+function getPrev(c) {
+    if (c === 'DONE') return 'REVIEW';
+    if (c === 'REVIEW') return 'IN_PROGRESS';
     return 'TODO';
 }
 
@@ -126,10 +117,9 @@ window.moveTask = async function(taskId, newStatus) {
     }
 };
 
-// Chat Functions
 async function fetchMessages() {
     try {
-        const res = await fetch(`/api/messages?workspaceId=${currentWorkspaceId}&channel=general`);
+        const res = await fetch(`/api/messages?workspaceId=${currentWorkspaceId}&channel=architecture`);
         const data = await res.json();
         if (data.success) {
             renderMessages(data.messages);
@@ -142,21 +132,18 @@ async function fetchMessages() {
 function renderMessages(messages) {
     const container = document.getElementById('chatMessages');
     if (!messages.length) {
-        container.innerHTML = `<div class="text-center py-8 text-slate-500">No messages yet. Say hi!</div>`;
+        container.innerHTML = `<div class="text-center py-8 text-zinc-600 font-mono text-xs">No channel updates yet.</div>`;
         return;
     }
 
     container.innerHTML = messages.map(m => `
-        <div class="flex items-start space-x-2.5">
-            <img src="${m.avatar}" class="h-6 w-6 rounded-full bg-slate-800 shrink-0 mt-0.5">
-            <div class="flex-1">
-                <div class="flex items-baseline space-x-2">
-                    <span class="font-bold text-xs text-slate-200">${m.user_name}</span>
-                    <span class="text-[10px] text-slate-500 font-mono">${new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-                <div class="mt-0.5 text-slate-300 text-[11px] bg-slate-900/80 p-2 rounded-lg border border-slate-800/80">
-                    ${m.content}
-                </div>
+        <div class="space-y-1">
+            <div class="flex items-baseline space-x-2 font-mono text-[11px]">
+                <span class="font-semibold text-zinc-200">${m.user_name}</span>
+                <span class="text-zinc-600 text-[10px]">${new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+            <div class="text-zinc-300 text-xs bg-zinc-900/70 p-2 rounded border border-zinc-800/80 leading-relaxed font-sans">
+                ${m.content}
             </div>
         </div>
     `).join('');
@@ -177,10 +164,10 @@ document.getElementById('chatForm').addEventListener('submit', async (e) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 workspaceId: currentWorkspaceId,
-                channel: 'general',
+                channel: 'architecture',
                 userId: currentUser.id,
                 userName: currentUser.name,
-                content: content
+                content
             })
         });
         await fetchMessages();
@@ -189,7 +176,6 @@ document.getElementById('chatForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Presence & Heartbeat
 async function sendHeartbeat() {
     try {
         await fetch('/api/presence/heartbeat', {
@@ -203,7 +189,7 @@ async function sendHeartbeat() {
         });
         await fetchPresence();
     } catch (e) {
-        console.error("Heartbeat error:", e);
+        console.error("Presence error:", e);
     }
 }
 
@@ -214,9 +200,9 @@ async function fetchPresence() {
         if (data.success) {
             const container = document.getElementById('presenceContainer');
             container.innerHTML = data.presence.map(p => `
-                <div class="flex items-center space-x-1.5 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800 text-[11px]">
-                    <span class="h-2 w-2 rounded-full ${p.status === 'ONLINE' ? 'bg-emerald-400' : 'bg-amber-400'}"></span>
-                    <span class="text-slate-200 font-medium">${p.user_name}</span>
+                <div class="flex items-center space-x-2 text-[11px]">
+                    <span class="h-1.5 w-1.5 rounded-full ${p.status === 'ONLINE' ? 'bg-emerald-400' : 'bg-amber-400'}"></span>
+                    <span class="text-zinc-300 font-medium truncate">${p.user_name}</span>
                 </div>
             `).join('');
         }
@@ -225,7 +211,6 @@ async function fetchPresence() {
     }
 }
 
-// Modal handling
 const modal = document.getElementById('taskModal');
 document.getElementById('openNewTaskModalBtn').addEventListener('click', () => modal.classList.remove('hidden'));
 document.getElementById('closeModalBtn').addEventListener('click', () => modal.classList.add('hidden'));
@@ -256,18 +241,16 @@ document.getElementById('createTaskForm').addEventListener('submit', async (e) =
         document.getElementById('createTaskForm').reset();
         await fetchTasks();
     } catch (err) {
-        alert("Failed to create task: " + err.message);
+        alert("Failed to create ticket: " + err.message);
     }
 });
 
-// Periodic live sync (Simulating WebSockets across tabs)
 setInterval(() => {
     fetchTasks();
     fetchMessages();
     fetchPresence();
 }, 4000);
 
-// Initial Load
 fetchWorkspaces();
 fetchTasks();
 fetchMessages();
