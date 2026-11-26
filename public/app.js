@@ -202,7 +202,8 @@ document.getElementById('createTaskForm').addEventListener('submit', async (e) =
     const title = document.getElementById('taskTitleInput').value.trim();
     const description = document.getElementById('taskDescInput').value.trim();
     const priority = document.getElementById('taskPriorityInput').value;
-    const storyPoints = parseInt(document.getElementById('taskPointsInput').value, 10);
+    const pointsEl = document.getElementById('taskPointsInput');
+    const storyPoints = pointsEl ? (parseInt(pointsEl.value, 10) || 3) : 3;
     const assignedTo = document.getElementById('taskAssigneeInput').value;
 
     if (!title) return;
