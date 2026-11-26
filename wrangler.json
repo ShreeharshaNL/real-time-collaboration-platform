@@ -1,0 +1,26 @@
+{
+  "name": "realtime-collaboration-platform",
+  "main": "worker/index.js",
+  "compatibility_date": "2024-09-23",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "collab-platform-db",
+      "database_id": "8ae4f3af-2494-4d28-bc52-664bac1105fd"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "collab.shreeharsha.online",
+      "custom_domain": true
+    }
+  ]
+}

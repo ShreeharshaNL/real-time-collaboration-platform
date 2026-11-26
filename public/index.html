@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Collaboration Platform | Shreeharsha N L</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased overflow-hidden">
+    <!-- Top Bar -->
+    <header class="h-14 border-b border-slate-800/80 bg-slate-900/90 backdrop-blur px-4 flex items-center justify-between shrink-0 z-40">
+        <div class="flex items-center space-x-3">
+            <div class="h-8 w-8 rounded-lg bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center font-bold text-white shadow-md shadow-indigo-500/20">
+                <i class="fa-solid fa-users-viewfinder text-sm"></i>
+            </div>
+            <div>
+                <span class="font-bold text-sm text-white">SyncHub Collab</span>
+                <span class="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-mono">WebSockets & Redis Sync</span>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <!-- User Switcher -->
+            <div class="flex items-center space-x-2 text-xs">
+                <span class="text-slate-400">Acting as:</span>
+                <select id="userSelector" class="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-2.5 py-1 text-xs focus:ring-1 focus:ring-indigo-500">
+                    <option value="usr-1" data-name="Shreeharsha N L" data-role="OWNER">Shreeharsha N L (Owner)</option>
+                    <option value="usr-2" data-name="Ananya Sharma" data-role="ADMIN">Ananya Sharma (Admin)</option>
+                    <option value="usr-3" data-name="Rahul Verma" data-role="MEMBER">Rahul Verma (Member)</option>
+                </select>
+            </div>
+
+            <a href="https://github.com/ShreeharshaNL/real-time-collaboration-platform" target="_blank" class="text-xs flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                <i class="fa-brands fa-github text-sm"></i>
+                <span class="hidden sm:inline">GitHub</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Workspace Area -->
+    <div class="flex-1 flex overflow-hidden">
+        <!-- Left Sidebar: Workspaces & Channels -->
+        <aside class="w-60 border-r border-slate-800/80 bg-slate-900/40 p-4 flex flex-col space-y-6 shrink-0 hidden md:flex">
+            <!-- Workspaces -->
+            <div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+                    <span>Workspaces</span>
+                    <i class="fa-solid fa-briefcase text-slate-500"></i>
+                </div>
+                <div id="workspaceList" class="space-y-1">
+                    <div class="text-xs text-slate-500">Loading workspaces...</div>
+                </div>
+            </div>
+
+            <!-- Channels -->
+            <div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+                    <span>Channels</span>
+                    <i class="fa-solid fa-hashtag text-slate-500"></i>
+                </div>
+                <div class="space-y-1 text-xs font-mono">
+                    <button class="w-full text-left px-2.5 py-1.5 rounded-lg bg-indigo-500/15 text-indigo-300 font-semibold flex items-center space-x-2">
+                        <i class="fa-solid fa-hashtag text-slate-400 text-xs"></i>
+                        <span>general</span>
+                    </button>
+                    <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-hashtag text-slate-500 text-xs"></i>
+                        <span>sprint-planning</span>
+                    </button>
+                    <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-hashtag text-slate-500 text-xs"></i>
+                        <span>dev-talk</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tech stack summary -->
+            <div class="mt-auto pt-4 border-t border-slate-800/80 text-[11px] text-slate-500 space-y-1">
+                <div class="font-bold text-slate-400">Stack:</div>
+                <div>Node.js &bull; Socket.IO &bull; Redis</div>
+                <div>MongoDB / Cloudflare D1</div>
+                <div>Role-based Access &bull; Rate Limiting</div>
+            </div>
+        </aside>
+
+        <!-- Center: Kanban Board Area -->
+        <main class="flex-1 flex flex-col min-w-0 bg-slate-950 overflow-hidden">
+            <!-- Board Subheader -->
+            <div class="h-12 border-b border-slate-800/80 px-4 flex items-center justify-between shrink-0 bg-slate-900/20">
+                <div class="flex items-center space-x-2">
+                    <h1 id="currentBoardTitle" class="font-bold text-sm text-white">Sprint 42 - Q4 Deliverables</h1>
+                    <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse ml-2" title="Live Synced"></span>
+                    <span class="text-[11px] text-slate-400 font-mono">Live Synced</span>
+                </div>
+                <button id="openNewTaskModalBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-md shadow-indigo-500/20 transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add Task</span>
+                </button>
+            </div>
+
+            <!-- Kanban Columns Container -->
+            <div class="flex-1 overflow-x-auto p-4 flex space-x-4">
+                <!-- Column: TODO -->
+                <div class="w-72 bg-slate-900/50 rounded-xl border border-slate-800 flex flex-col shrink-0">
+                    <div class="p-3 border-b border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="h-2.5 w-2.5 rounded-full bg-slate-400"></span>
+                            <span class="text-xs font-bold text-white uppercase tracking-wider">To Do</span>
+                        </div>
+                        <span id="count-TODO" class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">0</span>
+                    </div>
+                    <div id="col-TODO" class="p-3 space-y-2.5 flex-1 overflow-y-auto min-h-[300px]">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Column: IN_PROGRESS -->
+                <div class="w-72 bg-slate-900/50 rounded-xl border border-slate-800 flex flex-col shrink-0">
+                    <div class="p-3 border-b border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="h-2.5 w-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                            <span class="text-xs font-bold text-white uppercase tracking-wider">In Progress</span>
+                        </div>
+                        <span id="count-IN_PROGRESS" class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">0</span>
+                    </div>
+                    <div id="col-IN_PROGRESS" class="p-3 space-y-2.5 flex-1 overflow-y-auto min-h-[300px]">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Column: REVIEW -->
+                <div class="w-72 bg-slate-900/50 rounded-xl border border-slate-800 flex flex-col shrink-0">
+                    <div class="p-3 border-b border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="h-2.5 w-2.5 rounded-full bg-purple-400"></span>
+                            <span class="text-xs font-bold text-white uppercase tracking-wider">Code Review</span>
+                        </div>
+                        <span id="count-REVIEW" class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">0</span>
+                    </div>
+                    <div id="col-REVIEW" class="p-3 space-y-2.5 flex-1 overflow-y-auto min-h-[300px]">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Column: DONE -->
+                <div class="w-72 bg-slate-900/50 rounded-xl border border-slate-800 flex flex-col shrink-0">
+                    <div class="p-3 border-b border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+                            <span class="text-xs font-bold text-white uppercase tracking-wider">Done</span>
+                        </div>
+                        <span id="count-DONE" class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">0</span>
+                    </div>
+                    <div id="col-DONE" class="p-3 space-y-2.5 flex-1 overflow-y-auto min-h-[300px]">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar: Live Chat & Team Presence -->
+        <aside class="w-80 border-l border-slate-800/80 bg-slate-900/40 flex flex-col shrink-0 hidden lg:flex">
+            <!-- Presence Panel -->
+            <div class="p-3 border-b border-slate-800">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+                    <span>Live Team Presence</span>
+                    <i class="fa-solid fa-signal text-emerald-400 text-xs"></i>
+                </div>
+                <div id="presenceContainer" class="flex flex-wrap gap-2">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Chat Header -->
+            <div class="p-3 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
+                <div class="flex items-center space-x-2 text-xs font-bold text-white">
+                    <i class="fa-regular fa-comments text-indigo-400"></i>
+                    <span>Live Channel Chat</span>
+                </div>
+                <span class="text-[10px] text-slate-500 font-mono">#general</span>
+            </div>
+
+            <!-- Chat Messages Scroll Container -->
+            <div id="chatMessages" class="flex-1 p-3 space-y-3 overflow-y-auto text-xs">
+                <!-- Messages populated dynamically -->
+            </div>
+
+            <!-- Chat Input -->
+            <div class="p-3 border-t border-slate-800 bg-slate-900/60">
+                <form id="chatForm" class="flex items-center space-x-2">
+                    <input type="text" id="chatInput" placeholder="Message #general..." class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-xs transition">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Modal: Create Task -->
+    <div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-sm text-white">Create New Task</h3>
+                <button id="closeModalBtn" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="createTaskForm" class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-400 mb-1">Title</label>
+                    <input type="text" id="taskTitleInput" required placeholder="e.g. Implement JWT refresh tokens" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Description</label>
+                    <textarea id="taskDescInput" rows="3" placeholder="Task details and acceptance criteria..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Priority</label>
+                        <select id="taskPriorityInput" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100">
+                            <option value="LOW">Low</option>
+                            <option value="MEDIUM" selected>Medium</option>
+                            <option value="HIGH">High</option>
+                            <option value="URGENT">Urgent</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Assignee</label>
+                        <select id="taskAssigneeInput" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100">
+                            <option value="Shreeharsha N L">Shreeharsha N L</option>
+                            <option value="Ananya Sharma">Ananya Sharma</option>
+                            <option value="Rahul Verma">Rahul Verma</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pt-2 flex justify-end space-x-2">
+                    <button type="button" id="cancelModalBtn" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg shadow-md shadow-indigo-500/20">Create Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
